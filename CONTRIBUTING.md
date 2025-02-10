@@ -1,6 +1,83 @@
 # 贡献指南 / Contributing Guidelines
 
-感谢您对DLC-WebUI项目的关注！这份文档将指导您如何为项目做出贡献。
+感谢您对本项目的关注！以下是参与贡献的指南。
+
+## 开始之前 / Before You Start
+
+1. 确保您已经：
+   - 阅读了项目的 README.md
+   - 查看了现有的 Issues 和 Pull Requests
+   - 了解项目的基本架构和功能
+
+## 如何贡献 / How to Contribute
+
+### 1. 提交问题 / Submitting Issues
+
+- 使用清晰的标题
+- 提供详细的问题描述
+- 包含复现步骤（如果适用）
+- 附上相关的日志或截图
+
+### 2. 提交代码 / Submitting Code
+
+1. Fork 项目
+2. 创建特性分支：`git checkout -b feature/your-feature`
+3. 提交更改：`git commit -m 'Add some feature'`
+4. 推送分支：`git push origin feature/your-feature`
+5. 提交 Pull Request
+
+### 3. 代码规范 / Code Standards
+
+- 遵循 PEP 8 规范
+- 使用有意义的变量和函数名
+- 添加必要的注释和文档
+- 确保代码通过所有测试
+
+### 4. 提交 Pull Request / Pull Request Process
+
+1. 更新 README.md（如果需要）
+2. 更新文档（如果需要）
+3. 确保 CI 测试通过
+4. 等待审核和合并
+
+## 开发设置 / Development Setup
+
+```bash
+# 克隆仓库
+git clone https://github.com/your-username/DLC-WebUI.git
+cd DLC-WebUI
+
+# 创建虚拟环境
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+venv\Scripts\activate     # Windows
+
+# 安装依赖
+pip install -r requirements.txt
+pip install -r requirements-dev.txt
+```
+
+## 测试 / Testing
+
+```bash
+# 运行测试
+pytest
+
+# 检查代码格式
+black .
+isort .
+
+# 类型检查
+mypy src
+```
+
+## 问题反馈 / Getting Help
+
+如果您在贡献过程中遇到任何问题，可以：
+
+- 在 Issues 中提问
+- 发送邮件至 [your-email@example.com](mailto:your-email@example.com)
+- 查看项目 Wiki
 
 ## 行为准则 / Code of Conduct
 

@@ -53,8 +53,8 @@ def process_mouse_social_video(file_path, folder_path, confidence_threshold=0.9,
                                         kind='linear', fill_value='extrapolate')
                         smoothed = gaussian_filter(interp(np.arange(len(col))), sigma=2)
                         data.loc[:, (mouse, f'{part}_{coord}')] = smoothed
-
-        # 计算两只小鼠之间的距离
+    
+    # 计算两只小鼠之间的距离
         distances = {}
         for part1 in body_parts:
             for part2 in body_parts:
