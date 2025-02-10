@@ -1,0 +1,64 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Project specific
+models/*
+!models/.gitkeep
+data/*
+!data/.gitkeep
+data/scratch/*
+!data/scratch/.gitkeep
+data/grooming/*
+!data/grooming/.gitkeep
+data/swimming/*
+!data/swimming/.gitkeep
+data/three_chamber/*
+!data/three_chamber/.gitkeep
+data/two_social/*
+!data/two_social/.gitkeep
+data/cpp/*
+!data/cpp/.gitkeep
+data/video_prepare/*
+!data/video_prepare/.gitkeep
+data/temp/*
+!data/temp/.gitkeep
+data/results/*
+!data/results/.gitkeep
+
+# Logs
+logs/*
+!logs/.gitkeep
+
+# System
+.DS_Store
+Thumbs.db 
