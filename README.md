@@ -76,5 +76,5 @@ streamlit run app.py
 
 ## 联系我们 / Contact Us
 
-- 问题反馈 / Issues: [GitHub Issues](https://github.com/your-username/DLC-WebUI/issues)
-- 邮件咨询 / Email: your-email@example.com
+- 问题反馈 / Issues: [GitHub Issues](https://github.com/guanliangyu/DLC-WebUI/issues)
+- 邮件咨询 / Email: liangyu.guan@outlook.com
