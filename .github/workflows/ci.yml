@@ -34,21 +34,25 @@ jobs:
       shell: bash -l {0}
       run: |
         conda install -y python=3.9.15
-        conda install -y cudatoolkit=11.8.0
-        conda install -y cudnn=8.9.2.26 cuda-version=11.8
-        conda install -y tensorflow-gpu=2.10.0 tensorflow-base=2.10.0 tensorflow-estimator=2.10.0
-        conda install -y nccl=2.21.5.1
+        conda install -y cudatoolkit=11.2
+        conda install -y cudnn=8.1.0
         conda install -y ffmpeg
     
     - name: Install Python dependencies
       shell: bash -l {0}
       run: |
         python -m pip install --upgrade pip
+        pip install tensorflow-gpu==2.10.0
         pip install 'deeplabcut[tf,modelzoo]'
         pip install streamlit
         pip install GPUtil
         pip install streamlit-authenticator
         pip install pytest pytest-cov black isort mypy
+    
+    - name: Set CUDA environment variables
+      shell: bash -l {0}
+      run: |
+        echo "LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
     
     - name: Check code formatting
       shell: bash -l {0}
