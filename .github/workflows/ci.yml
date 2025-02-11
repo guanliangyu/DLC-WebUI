@@ -20,8 +20,8 @@ jobs:
       uses: conda-incubator/setup-miniconda@v2
       with:
         python-version: ${{ matrix.python-version }}
-        channels: conda-forge,defaults
-        channel-priority: strict
+        channels: defaults,conda-forge
+        channel-priority: flexible
         activate-environment: DLC-Web
         auto-activate-base: false
     
@@ -35,10 +35,8 @@ jobs:
       run: |
         conda install -y python=3.9.15
         conda install -y cudatoolkit=11.8.0
-        conda install -y cudnn=8.9.2.26
-        conda install -y tensorflow-gpu=2.10.0
-        conda install -y tensorflow-base=2.10.0
-        conda install -y tensorflow-estimator=2.10.0
+        conda install -y cudnn=8.9.2.26 cuda-version=11.8
+        conda install -y tensorflow-gpu=2.10.0 tensorflow-base=2.10.0 tensorflow-estimator=2.10.0
         conda install -y nccl=2.21.5.1
         conda install -y ffmpeg
     
