@@ -1,23 +1,23 @@
 # Web Interface
-streamlit==1.28.0
-streamlit-option-menu==0.3.6
-streamlit-extras==0.3.5
+streamlit
+streamlit-authenticator
+GPUtil
 
 # Core Dependencies
+deeplabcut[tf,modelzoo]
+tensorflow-gpu==2.10.0
+cudatoolkit==11.8.0
 numpy==1.24.3
 pandas==2.0.3
 pillow==10.0.1
 opencv-python==4.8.1.78
-deeplabcut==2.3.10
 scikit-learn==1.3.1
 
 # Deep Learning
 tensorflow==2.12.0
-tensorflow-gpu==2.12.0
 
 # Utilities
 pyyaml==6.0.1
-GPUtil==1.4.0
 psutil==5.9.6
 tqdm==4.66.1
 
@@ -31,3 +31,8 @@ black==23.9.1
 isort==5.12.0
 pytest==7.4.2
 pytest-cov==4.1.0
+
+# Note: The following packages are managed by conda:
+# - cudatoolkit
+# - cudnn
+# - ffmpeg
