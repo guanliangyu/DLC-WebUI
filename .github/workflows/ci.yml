@@ -48,7 +48,14 @@ jobs:
         pip install GPUtil
         pip install streamlit-authenticator
         pip install pytest pytest-cov black isort mypy
-    
+
+    - name: Convert file encoding of Python files
+      shell: bash -l {0}
+      run: |
+        for file in $(find . -name "*.py"); do
+            iconv -f utf-8-sig -t utf-8 "$file" -o "$file" || true
+        done
+
     - name: Set CUDA environment variables
       shell: bash -l {0}
       run: |
