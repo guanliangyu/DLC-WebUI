@@ -48,7 +48,7 @@ def create_video_combination_script(
             f.write("    try:\n")
             f.write("        subprocess.run(\n")
             f.write(
-                '            ["ffmpeg", "-f", "concat", "-safe", "0", "-i", "file_list.txt", "-c", "copy", output_file],\n'
+                '            ["ffmpeg", "-f", "concat", "-safe", "0", ' '"-i", "file_list.txt", "-c", "copy", output_file],\n'
             )
             f.write("            check=True\n")
             f.write("        )\n")

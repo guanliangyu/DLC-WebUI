@@ -10,12 +10,12 @@ def load_css_styles():
         [data-testid="stSidebarNav"] {
             display: none;
         }
-        
+
         /* 侧边栏样式优化 */
         .css-1d391kg {
             padding-top: 2rem;
         }
-        
+
         /* 侧边栏标题样式 */
         .sidebar-title {
             font-size: 1rem;
@@ -24,7 +24,7 @@ def load_css_styles():
             border-bottom: 2px solid #e0e0e0;
             padding-bottom: 0.5rem;
         }
-        
+
         /* 侧边栏分割线 */
         .sidebar-divider {
             margin: 1rem 0;
@@ -42,7 +42,7 @@ def load_css_styles():
             color: #2c3e50;
             transition: all 0.3s ease;
         }
-        
+
         .stButton button:hover {
             background-color: #f1f8e9;
             color: #4CAF50;

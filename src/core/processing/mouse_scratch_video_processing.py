@@ -44,9 +44,7 @@ def process_mouse_scratch_video(
         data = data[(data[4] >= min_distance) & (data[4] <= max_distance)]
 
         if data.empty:
-            st.warning(
-                f"过滤后没有有效数据 / No valid data after filtering: {file_path}"
-            )
+            st.warning(f"过滤后没有有效数据 / No valid data after filtering: {file_path}")
             return None
 
         # 保存过滤后的数据
@@ -61,26 +59,16 @@ def process_mouse_scratch_video(
             return None
 
         # 计算每分钟的得分
-        scores_per_minute = (
-            data.groupby(data[5].astype(int))[0]
-            .count()
-            .reindex(range(int(data[5].max()) + 1), fill_value=0)
-        )
-        scores_per_minute_file_path = os.path.join(
-            folder_path, f"{base_file_name}_filtered_min.csv"
-        )
+        scores_per_minute = data.groupby(data[5].astype(int))[0].count().reindex(range(int(data[5].max()) + 1), fill_value=0)
+        scores_per_minute_file_path = os.path.join(folder_path, f"{base_file_name}_filtered_min.csv")
         scores_per_minute.to_csv(scores_per_minute_file_path, header=False)
 
         # 修改每分钟得分，计数<=5的设为0
         scores_per_minute[scores_per_minute <= 5] = 0
 
         # 计算5分钟间隔的得分总和
-        scores_5min_intervals = scores_per_minute.groupby(
-            scores_per_minute.index // 5
-        ).sum()
-        scores_5min_intervals_file_path = os.path.join(
-            folder_path, f"{base_file_name}_filtered_5min_intervals.csv"
-        )
+        scores_5min_intervals = scores_per_minute.groupby(scores_per_minute.index // 5).sum()
+        scores_5min_intervals_file_path = os.path.join(folder_path, f"{base_file_name}_filtered_5min_intervals.csv")
         scores_5min_intervals.to_csv(scores_5min_intervals_file_path, header=False)
 
         st.success(f"✅ 处理完成 / Processing completed: {os.path.basename(file_path)}")
@@ -98,9 +86,7 @@ def process_mouse_scratch_video(
         return None
 
 
-def process_scratch_files(
-    folder_path, paw_probability_threshold=0.99999, min_distance=10, max_distance=25
-):
+def process_scratch_files(folder_path, paw_probability_threshold=0.99999, min_distance=10, max_distance=25):
     """处理文件夹中的所有抓挠视频分析结果
     Process all scratch video analysis results in the folder
 
@@ -112,11 +98,7 @@ def process_scratch_files(
     """
     try:
         # 查找所有以"00000.csv"结尾的文件
-        file_paths = [
-            os.path.join(folder_path, f)
-            for f in os.listdir(folder_path)
-            if f.endswith("00000.csv")
-        ]
+        file_paths = [os.path.join(folder_path, f) for f in os.listdir(folder_path) if f.endswith("00000.csv")]
 
         if not file_paths:
             st.warning("未找到分析结果文件 / No analysis result files found")
@@ -137,9 +119,7 @@ def process_scratch_files(
 
         # 显示处理结果
         if processed_files_list:
-            st.success(
-                f"✅ 成功处理 {len(processed_files_list)} 个文件 / Successfully processed {len(processed_files_list)} files"
-            )
+            st.success(f"✅ 成功处理 {len(processed_files_list)} 个文件 / " f"Successfully processed {len(processed_files_list)} files")
             for result in processed_files_list:
                 st.write(result)
         else:

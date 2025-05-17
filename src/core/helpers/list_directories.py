@@ -13,6 +13,4 @@ def list_directories(root_path: str) -> List[str]:
     Returns:
         List[str]: 子目录列表
     """
-    return [
-        d for d in os.listdir(root_path) if os.path.isdir(os.path.join(root_path, d))
-    ]
+    return [d for d in os.listdir(root_path) if os.path.isdir(os.path.join(root_path, d))]

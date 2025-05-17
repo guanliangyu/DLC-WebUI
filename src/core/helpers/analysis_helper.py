@@ -1,7 +1,5 @@
-import datetime
 import os
 import subprocess
-from typing import Dict, List, Optional
 
 import streamlit as st
 
@@ -30,15 +28,11 @@ def create_and_start_analysis(
         if selected_gpus is None:
             selected_gpus = list(range(gpu_count))
 
-        st.write(
-            f"调试信息 / Debug: {len(selected_files)} 个文件使用 {len(selected_gpus)} 个GPU"
-        )
+        st.write(f"调试信息 / Debug: {len(selected_files)} 个文件使用 {len(selected_gpus)} 个GPU")
 
         # 检查GPU数量和文件数量
         if len(selected_files) < len(selected_gpus):
-            st.warning(
-                "文件数量少于GPU数量，部分GPU将不会被使用 / Not enough files for the number of GPUs. Some GPUs will not be used."
-            )
+            st.warning("文件数量少于GPU数量，部分GPU将不会被使用 / " "Not enough files for the number of GPUs. Some GPUs will not be used.")
             selected_gpus = selected_gpus[: len(selected_files)]
 
         # 计算每个GPU处理的文件数
@@ -63,16 +57,16 @@ def create_and_start_analysis(
 
             gpu_index = selected_gpus[group_num]
             run_py_path = os.path.join(folder_path, f"run_gpu{gpu_index}.py")
-            start_script_path = os.path.join(
-                folder_path, f"start_analysis_gpu{gpu_index}.py"
-            )
+            start_script_path = os.path.join(folder_path, f"start_analysis_gpu{gpu_index}.py")
             log_file_path = os.path.join(folder_path, f"output_gpu{gpu_index}.log")
 
             # 创建运行脚本内容
-            analyze_videos_code = f"deeplabcut.analyze_videos(r'{config_path}', {files_group}, videotype='mp4', shuffle=1, trainingsetindex=0, gputouse={gpu_index}, save_as_csv=True)"
-            create_labeled_video_code = (
-                f"deeplabcut.create_labeled_video(r'{config_path}', {files_group})"
+            analyze_videos_code = (
+                f"deeplabcut.analyze_videos(r'{config_path}', {files_group}, "
+                f"videotype='mp4', shuffle=1, trainingsetindex=0, "
+                f"gputouse={gpu_index}, save_as_csv=True)"
             )
+            create_labeled_video_code = f"deeplabcut.create_labeled_video(r'{config_path}', {files_group})"
 
             content = f"""
 import deeplabcut
@@ -106,34 +100,26 @@ subprocess.run(['python', r'{run_py_path}'], check=True)
                 )
                 processes.append((process, gpu_index))
 
-            st.success(
-                f"✅ 已在GPU {gpu_index}上启动分析任务 / Analysis task started on GPU {gpu_index}"
-            )
+            st.success(f"✅ 已在GPU {gpu_index}上启动分析任务 / Analysis task started on GPU {gpu_index}")
 
         # 等待所有进程完成
         for process, gpu_index in processes:
             process.wait()
             if process.returncode != 0:
-                st.error(
-                    f"❌ GPU {gpu_index}上的分析任务出错 / Error encountered while running analysis on GPU {gpu_index}"
-                )
+                st.error(f"❌ GPU {gpu_index}上的分析任务出错 / " f"Error encountered while running analysis on GPU {gpu_index}")
 
         # 记录到总日志文件
         general_log_path = os.path.join(folder_path, "general_log.txt")
         with open(general_log_path, "a", encoding="utf-8") as general_log:
             for _, gpu_index in processes:
-                general_log.write(
-                    f"[{current_time}] 在GPU {gpu_index}上启动了分析 / Analysis started on GPU {gpu_index}\n"
-                )
+                general_log.write(f"[{current_time}] 在GPU {gpu_index}上启动了分析 / " f"Analysis started on GPU {gpu_index}\n")
 
     except Exception as e:
         st.error(f"❌ 创建分析任务失败 / Failed to create analysis task: {str(e)}")
         raise e
 
 
-def fetch_last_lines_of_logs(
-    folder_path: str, gpu_count: int = 1, num_lines: int = 20
-) -> dict:
+def fetch_last_lines_of_logs(folder_path: str, gpu_count: int = 1, num_lines: int = 20) -> dict:
     """获取日志文件的最后几行
     Get the last few lines of log files
 

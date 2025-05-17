@@ -40,12 +40,7 @@ def process_mouse_cpp_video(file_path, folder_path, confidence_threshold=0.9):
 
         # 速度过滤和插值设置
         for i in range(1, total_frames):
-            if (
-                not np.isnan(x[i - 1])
-                and not np.isnan(x[i])
-                and not np.isnan(y[i - 1])
-                and not np.isnan(y[i])
-            ):
+            if not np.isnan(x[i - 1]) and not np.isnan(x[i]) and not np.isnan(y[i - 1]) and not np.isnan(y[i]):
                 dx = x[i] - x[i - 1]
                 dy = y[i] - y[i - 1]
                 speed = np.sqrt(dx**2 + dy**2) * frame_rate
@@ -93,10 +88,7 @@ def process_mouse_cpp_video(file_path, folder_path, confidence_threshold=0.9):
 
             # 计算在各区域的时间（秒）
             time_left = np.sum(segment_x < x_boundaries[0]) / frame_rate
-            time_middle = (
-                np.sum((segment_x >= x_boundaries[0]) & (segment_x < x_boundaries[1]))
-                / frame_rate
-            )
+            time_middle = np.sum((segment_x >= x_boundaries[0]) & (segment_x < x_boundaries[1])) / frame_rate
             time_right = np.sum(segment_x >= x_boundaries[1]) / frame_rate
 
             # 计算在各区域的移动距离
@@ -105,12 +97,7 @@ def process_mouse_cpp_video(file_path, folder_path, confidence_threshold=0.9):
             distances = np.sqrt(dx**2 + dy**2)
 
             dist_left = np.sum(distances[segment_x[:-1] < x_boundaries[0]])
-            dist_middle = np.sum(
-                distances[
-                    (segment_x[:-1] >= x_boundaries[0])
-                    & (segment_x[:-1] < x_boundaries[1])
-                ]
-            )
+            dist_middle = np.sum(distances[(segment_x[:-1] >= x_boundaries[0]) & (segment_x[:-1] < x_boundaries[1])])
             dist_right = np.sum(distances[segment_x[:-1] >= x_boundaries[1]])
 
             segment_data.append(
@@ -137,9 +124,7 @@ def process_mouse_cpp_video(file_path, folder_path, confidence_threshold=0.9):
             alpha=0.5,
             label="运动轨迹 / Movement Trajectory",
         )
-        plt.axvline(
-            x=x_boundaries[0], color="r", linestyle="--", label="左边界 / Left Boundary"
-        )
+        plt.axvline(x=x_boundaries[0], color="r", linestyle="--", label="左边界 / Left Boundary")
         plt.axvline(
             x=x_boundaries[1],
             color="g",
@@ -154,9 +139,7 @@ def process_mouse_cpp_video(file_path, folder_path, confidence_threshold=0.9):
 
         # 绘制热力图
         plt.subplot(2, 1, 2)
-        plt.hist2d(
-            x_smoothed, y_smoothed, bins=50, range=[[0, 650], [0, 300]], cmap="viridis"
-        )
+        plt.hist2d(x_smoothed, y_smoothed, bins=50, range=[[0, 650], [0, 300]], cmap="viridis")
         plt.colorbar(label="停留时间 / Dwell Time")
         plt.axvline(x=x_boundaries[0], color="r", linestyle="--")
         plt.axvline(x=x_boundaries[1], color="g", linestyle="--")
@@ -174,27 +157,16 @@ def process_mouse_cpp_video(file_path, folder_path, confidence_threshold=0.9):
         # 计算并保存总体数据
         total_data = {
             "总时长 / Total Duration (s)": total_frames / frame_rate,
-            "左区域总时间 / Total Left Time (s)": np.sum(x_smoothed < x_boundaries[0])
+            "左区域总时间 / Total Left Time (s)": np.sum(x_smoothed < x_boundaries[0]) / frame_rate,
+            "中区域总时间 / Total Middle Time (s)": np.sum((x_smoothed >= x_boundaries[0]) & (x_smoothed < x_boundaries[1]))
             / frame_rate,
-            "中区域总时间 / Total Middle Time (s)": np.sum(
-                (x_smoothed >= x_boundaries[0]) & (x_smoothed < x_boundaries[1])
-            )
-            / frame_rate,
-            "右区域总时间 / Total Right Time (s)": np.sum(x_smoothed >= x_boundaries[1])
-            / frame_rate,
-            "左区域偏好指数 / Left Preference Index": (
-                np.sum(x_smoothed < x_boundaries[0]) / total_frames
-            )
-            * 100,
+            "右区域总时间 / Total Right Time (s)": np.sum(x_smoothed >= x_boundaries[1]) / frame_rate,
+            "左区域偏好指数 / Left Preference Index": (np.sum(x_smoothed < x_boundaries[0]) / total_frames) * 100,
             "中区域偏好指数 / Middle Preference Index": (
-                np.sum((x_smoothed >= x_boundaries[0]) & (x_smoothed < x_boundaries[1]))
-                / total_frames
+                np.sum((x_smoothed >= x_boundaries[0]) & (x_smoothed < x_boundaries[1])) / total_frames
             )
             * 100,
-            "右区域偏好指数 / Right Preference Index": (
-                np.sum(x_smoothed >= x_boundaries[1]) / total_frames
-            )
-            * 100,
+            "右区域偏好指数 / Right Preference Index": (np.sum(x_smoothed >= x_boundaries[1]) / total_frames) * 100,
         }
         pd.DataFrame([total_data]).to_csv(total_file_path, index=False)
 
@@ -216,11 +188,7 @@ def process_cpp_files(folder_path, confidence_threshold=0.9):
     """
     try:
         # 查找所有以"00000.csv"结尾的文件
-        file_paths = [
-            os.path.join(folder_path, f)
-            for f in os.listdir(folder_path)
-            if f.endswith("00000.csv")
-        ]
+        file_paths = [os.path.join(folder_path, f) for f in os.listdir(folder_path) if f.endswith("00000.csv")]
 
         if not file_paths:
             st.warning("未找到分析结果文件 / No analysis result files found")
@@ -229,17 +197,13 @@ def process_cpp_files(folder_path, confidence_threshold=0.9):
         # 处理每个文件
         processed_files_list = []
         for file_path in file_paths:
-            result = process_mouse_cpp_video(
-                file_path, folder_path, confidence_threshold
-            )
+            result = process_mouse_cpp_video(file_path, folder_path, confidence_threshold)
             if result:
                 processed_files_list.append(result)
 
         # 显示处理结果
         if processed_files_list:
-            st.success(
-                f"✅ 成功处理 {len(processed_files_list)} 个文件 / Successfully processed {len(processed_files_list)} files"
-            )
+            st.success(f"✅ 成功处理 {len(processed_files_list)} 个文件 / " f"Successfully processed {len(processed_files_list)} files")
             for result in processed_files_list:
                 st.write(result)
         else:

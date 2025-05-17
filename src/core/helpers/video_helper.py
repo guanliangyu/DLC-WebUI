@@ -69,9 +69,7 @@ def preview_original_frame(video_path, x=None, y=None, width=None, height=None):
 
         if ret and all(v is not None for v in [x, y, width, height]):
             frame_with_rect = frame.copy()
-            cv2.rectangle(
-                frame_with_rect, (x, y), (x + width, y + height), (0, 255, 0), 2
-            )
+            cv2.rectangle(frame_with_rect, (x, y), (x + width, y + height), (0, 255, 0), 2)
             frame_with_rect_rgb = cv2.cvtColor(frame_with_rect, cv2.COLOR_BGR2RGB)
             return frame_with_rect_rgb
 
@@ -120,9 +118,7 @@ def preview_cropped_frames(video_path, x=None, y=None, width=None, height=None):
                     cropped_frame = frame[y : y + height, x : x + width]
                     cropped_frame_rgb = cv2.cvtColor(cropped_frame, cv2.COLOR_BGR2RGB)
                     with preview_cols[idx]:
-                        st.image(
-                            cropped_frame_rgb, caption=name, use_container_width=True
-                        )
+                        st.image(cropped_frame_rgb, caption=name, use_container_width=True)
                 else:
                     # 如果没有裁剪参数，显示原始帧
                     frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -140,9 +136,7 @@ def preview_video_frame(video_path, x=None, y=None, width=None, height=None):
     return preview_original_frame(video_path, x, y, width, height)
 
 
-def crop_video_files(
-    folder_path, selected_files, start_time, duration, target_size=None, target_fps=None
-):
+def crop_video_files(folder_path, selected_files, start_time, duration, target_size=None, target_fps=None):
     """
     裁剪选定的视频文件
     Crop selected video files
@@ -196,9 +190,7 @@ def crop_video_files(
 
             # 创建视频写入器
             fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-            out = cv2.VideoWriter(
-                temp_output, fourcc, output_fps, (output_width, output_height)
-            )
+            out = cv2.VideoWriter(temp_output, fourcc, output_fps, (output_width, output_height))
 
             # 跳转到开始帧
             cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
@@ -222,18 +214,14 @@ def crop_video_files(
                 # 更新进度
                 progress = int((frame_count / total_frames) * 100)
                 progress_bar.progress(progress)
-                status_text.text(
-                    f"处理进度 / Progress: {progress}% ({frame_count}/{total_frames} frames)"
-                )
+                status_text.text(f"处理进度 / Progress: {progress}% " f"({frame_count}/{total_frames} frames)")
 
             # 释放资源
             cap.release()
             out.release()
 
             # 使用ffmpeg重新编码以确保兼容性
-            os.system(
-                f"ffmpeg -i {temp_output} -c:v libx264 -preset medium -crf 23 {output_path}"
-            )
+            os.system(f"ffmpeg -i {temp_output} -c:v libx264 -preset medium -crf 23 {output_path}")
             os.remove(temp_output)
 
             st.success(f"视频裁剪完成 / Video cropped: {output_name}")
@@ -244,7 +232,8 @@ def crop_video_files(
                 st.info(
                     f"""
                 输出视频信息 / Output Video Info:
-                - 分辨率 / Resolution: {output_info['width']}x{output_info['height']}
+                - 分辨率 / Resolution:
+                  {output_info['width']}x{output_info['height']}
                 - 帧率 / FPS: {output_info['fps']}
                 - 时长 / Duration: {output_info['duration_str']}
                 """
@@ -342,7 +331,13 @@ def create_extract_script(
     # 写入脚本内容
     with open(script_path, "w") as f:
         f.write("import subprocess\n")
-        command = f"""subprocess.run(['ffmpeg', '-hwaccel', 'cuda', '-hwaccel_device', '{deviceID}', '-c:v', 'h264_cuvid', '-ss', '{start_time}', '-t', '{duration}', '-i', '{video_path}', '-vf', 'crop={width}:{height}:{x}:{y},fps=30', '-c:v', 'h264_nvenc', '-gpu', '{deviceID}', '-an', '{output_full_path}'], shell=True)"""
+        command_list_str = (
+            f"['ffmpeg', '-hwaccel', 'cuda', '-hwaccel_device', '{deviceID}', "
+            f"'-c:v', 'h264_cuvid', '-ss', '{start_time}', '-t', '{duration}', "
+            f"'-i', '{video_path}', '-vf', 'crop={width}:{height}:{x}:{y},fps=30', "
+            f"'-c:v', 'h264_nvenc', '-gpu', '{deviceID}', '-an', '{output_full_path}']"
+        )
+        command = f"subprocess.run({command_list_str}, shell=True)"
         f.write(command + "\n")
 
     return script_path
@@ -396,7 +391,12 @@ def create_extract_script_CPU(
     # 写入脚本内容
     with open(script_path, "w") as f:
         f.write("import subprocess\n")
-        command = f"""subprocess.run(['ffmpeg', '-ss', '{start_time}', '-t', '{duration}', '-i', '{video_path}', '-vf', 'crop={width}:{height}:{x}:{y},fps=30', '-c:v', 'libx264', '-an', '{output_full_path}'], shell=True)"""
+        command_list_str = (
+            f"['ffmpeg', '-ss', '{start_time}', '-t', '{duration}', "
+            f"'-i', '{video_path}', '-vf', 'crop={width}:{height}:{x}:{y},fps=30', "
+            f"'-c:v', 'libx264', '-an', '{output_full_path}']"
+        )
+        command = f"subprocess.run({command_list_str}, shell=True)"
         f.write(command + "\n")
 
     return script_path

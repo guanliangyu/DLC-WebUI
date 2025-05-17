@@ -2,12 +2,7 @@ import os
 
 import streamlit as st
 
-from src.core.utils.file_utils import (
-    create_folder_if_not_exists,
-    list_directories,
-    select_video_files,
-    upload_files,
-)
+from src.core.utils.file_utils import list_directories, select_video_files, upload_files
 
 
 def setup_working_directory(root_directory: str):
@@ -45,24 +40,17 @@ def setup_working_directory(root_directory: str):
             folder_name = st.text_input("输入文件夹名称 / Enter folder name")
             col3, col4 = st.columns([1, 1])
             with col3:
-                if (
-                    st.button("✅ 确认 / Confirm", use_container_width=True)
-                    and folder_name
-                ):
+                if st.button("✅ 确认 / Confirm", use_container_width=True) and folder_name:
                     new_folder_path = os.path.join(root_directory, folder_name)
                     try:
                         if not os.path.exists(new_folder_path):
                             os.makedirs(new_folder_path)
-                            st.success(
-                                f"创建文件夹成功 / Created folder: {folder_name}"
-                            )
+                            st.success(f"创建文件夹成功 / Created folder: {folder_name}")
                             st.session_state.folder_created = True
                             st.session_state.current_folder = folder_name
                             st.rerun()
                         else:
-                            st.info(
-                                f"文件夹已存在 / Folder already exists: {folder_name}"
-                            )
+                            st.info(f"文件夹已存在 / Folder already exists: {folder_name}")
                     except Exception as e:
                         st.error(f"创建文件夹失败 / Failed to create folder: {str(e)}")
             with col4:
@@ -74,21 +62,15 @@ def setup_working_directory(root_directory: str):
         directories = list_directories(root_directory)
 
         if not directories:
-            st.warning(
-                "⚠️ 未找到工作目录，请先创建新文件夹 / No directories found, please create a new folder first"
-            )
+            st.warning("⚠️ 未找到工作目录，请先创建新文件夹 / No directories found, please create a new folder first")
             return None, None
 
         # 选择工作目录
         selected_directory = st.selectbox(
             "📂 选择工作目录 / Choose a directory",
             directories,
-            index=(
-                directories.index(st.session_state.current_folder)
-                if st.session_state.current_folder in directories
-                else 0
-            ),
-            help="选择要处理的文件所在的目录 / Select the directory containing the files to process",
+            index=(directories.index(st.session_state.current_folder) if st.session_state.current_folder in directories else 0),
+            help=("选择要处理的文件所在的目录 / " "Select the directory containing the files to process"),
         )
 
         if selected_directory:

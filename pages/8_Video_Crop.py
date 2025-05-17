@@ -1,39 +1,31 @@
+import datetime
 import os
 import sys
 
-# 添加项目根目录到Python路径
-root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if root_dir not in sys.path:
-    sys.path.append(root_dir)
-
-import datetime
-
-import cv2
 import streamlit as st
 
 from src.core.components import load_css_styles, render_sidebar
 from src.core.config import get_data_path, get_root_path
-from src.core.helpers.download_utils import filter_and_zip_files
 from src.core.helpers.video_helper import (
     create_extract_script,
     create_extract_script_CPU,
-    crop_video_files,
     get_video_info,
     move_selected_files,
     preview_cropped_frames,
     preview_original_frame,
-    preview_video_frame,
 )
 from src.core.utils.execute_selected_scripts import (
     execute_selected_scripts,
     fetch_last_lines_of_logs,
 )
-from src.core.utils.file_utils import create_folder_if_not_exists, select_python_files
 from src.core.utils.gpu_selector import setup_gpu_selection
 from src.core.utils.gpu_utils import display_gpu_usage
-
-# 导入共享组件
 from src.ui.components.file_manager import setup_working_directory
+
+# 添加项目根目录到Python路径
+root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if root_dir not in sys.path:
+    sys.path.append(root_dir)
 
 # 设置页面配置
 st.set_page_config(
@@ -58,7 +50,7 @@ with st.expander("💡 使用说明 / Instructions", expanded=True):
     - 输出格式：MP4 / Output Format: MP4
     - 默认保持原始分辨率和帧率 / Default: Keep original resolution and frame rate
     - 支持自定义输出参数 / Support custom output parameters
-    
+
     #### 使用步骤 / Steps:
     1. 选择工作目录和视频文件 / Select working directory and video files
     2. 设置裁剪参数 / Set crop parameters
@@ -123,20 +115,14 @@ if folder_path and selected_files:
         # 时间参数
         col5, col6 = st.columns(2)
         with col5:
-            start_time = st.number_input(
-                "开始时间（分钟） / Start Time (minutes)", min_value=0.0, value=0.0
-            )
+            start_time = st.number_input("开始时间（分钟） / Start Time (minutes)", min_value=0.0, value=0.0)
         with col6:
-            end_time = st.number_input(
-                "结束时间（分钟） / End Time (minutes)", min_value=0.1, value=1.0
-            )
+            end_time = st.number_input("结束时间（分钟） / End Time (minutes)", min_value=0.1, value=1.0)
 
     with preview_col:
         if selected_files:
             # 显示原始帧预览（带裁剪框）
-            original_frame = preview_original_frame(
-                video_path=selected_files[0], x=x, y=y, width=width, height=height
-            )
+            original_frame = preview_original_frame(video_path=selected_files[0], x=x, y=y, width=width, height=height)
             if original_frame is not None:
                 st.image(
                     original_frame,
@@ -149,9 +135,7 @@ if folder_path and selected_files:
     if selected_files:
         for video_path in selected_files:
             st.write(f"视频文件 / Video file: {os.path.basename(video_path)}")
-            preview_cropped_frames(
-                video_path=video_path, x=x, y=y, width=width, height=height
-            )
+            preview_cropped_frames(video_path=video_path, x=x, y=y, width=width, height=height)
 
     # 裁剪控制
     st.subheader("✂️ 裁剪控制 / Crop Control")
@@ -160,17 +144,13 @@ if folder_path and selected_files:
     st.markdown("#### 🖥️ GPU裁剪 / GPU Cropping")
     col7, col8 = st.columns(2)
     with col7:
-        if st.button(
-            "📝 生成GPU裁剪脚本 / Generate GPU Crop Scripts", use_container_width=True
-        ):
+        if st.button("📝 生成GPU裁剪脚本 / Generate GPU Crop Scripts", use_container_width=True):
             try:
                 # 检查session_state中是否存在name
                 user_name = st.session_state.get("name", "unknown_user")
 
                 with open(web_log_file_path, "a", encoding="utf-8") as web_log_file:
-                    web_log_file.write(
-                        f"\n{user_name}, {current_time}, Generate GPU Crop Scripts\n"
-                    )
+                    web_log_file.write(f"\n{user_name}, {current_time}, Generate GPU Crop Scripts\n")
 
                 with st.spinner("生成脚本中 / Generating scripts..."):
                     for video_path in selected_files:
@@ -187,9 +167,7 @@ if folder_path and selected_files:
                             deviceID=selected_gpus[0],
                         )
                         if script_path:
-                            st.success(
-                                f"✅ 脚本已生成 / Script generated: {os.path.basename(script_path)}"
-                            )
+                            st.success(f"✅ 脚本已生成 / Script generated: " f"{os.path.basename(script_path)}")
                 st.success("✅ 所有裁剪脚本生成完成 / All crop scripts generated")
             except Exception as e:
                 st.error(f"❌ 生成脚本失败 / Failed to generate scripts: {str(e)}")
@@ -204,17 +182,11 @@ if folder_path and selected_files:
                 help="选择需要执行的裁剪脚本 / Select crop scripts to execute",
             )
 
-            if selected_scripts and st.button(
-                "🚀 执行选定脚本 / Execute Selected Scripts", use_container_width=True
-            ):
+            if selected_scripts and st.button("🚀 执行选定脚本 / Execute Selected Scripts", use_container_width=True):
                 try:
                     with st.spinner("执行脚本中 / Executing scripts..."):
-                        execute_selected_scripts(
-                            folder_path, selected_scripts, folder_path
-                        )
-                    st.success(
-                        "✅ 所有选定脚本执行完成 / All selected scripts executed"
-                    )
+                        execute_selected_scripts(folder_path, selected_scripts, folder_path)
+                    st.success("✅ 所有选定脚本执行完成 / All selected scripts executed")
                 except Exception as e:
                     st.error(f"❌ 执行脚本失败 / Failed to execute scripts: {str(e)}")
         else:
@@ -224,17 +196,13 @@ if folder_path and selected_files:
     st.markdown("#### 💻 CPU裁剪 / CPU Cropping")
     col9, col10 = st.columns(2)
     with col9:
-        if st.button(
-            "📝 生成CPU裁剪脚本 / Generate CPU Crop Scripts", use_container_width=True
-        ):
+        if st.button("📝 生成CPU裁剪脚本 / Generate CPU Crop Scripts", use_container_width=True):
             try:
                 # 检查session_state中是否存在name
                 user_name = st.session_state.get("name", "unknown_user")
 
                 with open(web_log_file_path, "a", encoding="utf-8") as web_log_file:
-                    web_log_file.write(
-                        f"\n{user_name}, {current_time}, Generate CPU Crop Scripts\n"
-                    )
+                    web_log_file.write(f"\n{user_name}, {current_time}, Generate CPU Crop Scripts\n")
 
                 with st.spinner("生成脚本中 / Generating scripts..."):
                     for video_path in selected_files:
@@ -250,9 +218,7 @@ if folder_path and selected_files:
                             output_directory=folder_path,
                         )
                         if script_path:
-                            st.success(
-                                f"✅ 脚本已生成 / Script generated: {os.path.basename(script_path)}"
-                            )
+                            st.success(f"✅ 脚本已生成 / Script generated: " f"{os.path.basename(script_path)}")
                 st.success("✅ 所有裁剪脚本生成完成 / All crop scripts generated")
             except Exception as e:
                 st.error(f"❌ 生成脚本失败 / Failed to generate scripts: {str(e)}")
@@ -274,12 +240,8 @@ if folder_path and selected_files:
             ):
                 try:
                     with st.spinner("执行脚本中 / Executing scripts..."):
-                        execute_selected_scripts(
-                            folder_path, selected_cpu_scripts, folder_path
-                        )
-                    st.success(
-                        "✅ 所有选定脚本执行完成 / All selected scripts executed"
-                    )
+                        execute_selected_scripts(folder_path, selected_cpu_scripts, folder_path)
+                    st.success("✅ 所有选定脚本执行完成 / All selected scripts executed")
                 except Exception as e:
                     st.error(f"❌ 执行脚本失败 / Failed to execute scripts: {str(e)}")
         else:
@@ -298,51 +260,35 @@ else:
 # 文件移动功能
 st.subheader("📦 文件移动 / File Movement")
 if folder_path:  # 只要有工作目录就显示文件移动功能
-    video_files = [
-        f for f in os.listdir(folder_path) if "_" in f and f.lower().endswith(".mp4")
-    ]
-    selected_move_files = st.multiselect(
-        "选择要移动的视频文件 / Select video files to move:", video_files
-    )
+    video_files = [f for f in os.listdir(folder_path) if "_" in f and f.lower().endswith(".mp4")]
+    selected_move_files = st.multiselect("选择要移动的视频文件 / Select video files to move:", video_files)
 
     if selected_move_files:
         st.write("移动文件到 / Move files to:")
         col1, col2, col3, col4, col5, col6 = st.columns(6)
         with col1:
             if st.button("🐭 抓挠 / Scratch"):
-                dest_path = os.path.join(
-                    get_data_path(), "mouse_scratch", os.path.basename(folder_path)
-                )
+                dest_path = os.path.join(get_data_path(), "mouse_scratch", os.path.basename(folder_path))
                 move_selected_files(dest_path, selected_move_files, folder_path)
         with col2:
             if st.button("🐭 理毛 / Grooming"):
-                dest_path = os.path.join(
-                    get_data_path(), "mouse_grooming", os.path.basename(folder_path)
-                )
+                dest_path = os.path.join(get_data_path(), "mouse_grooming", os.path.basename(folder_path))
                 move_selected_files(dest_path, selected_move_files, folder_path)
         with col3:
             if st.button("🏠 三箱 / Three Chamber"):
-                dest_path = os.path.join(
-                    get_data_path(), "three_chamber", os.path.basename(folder_path)
-                )
+                dest_path = os.path.join(get_data_path(), "three_chamber", os.path.basename(folder_path))
                 move_selected_files(dest_path, selected_move_files, folder_path)
         with col4:
             if st.button("👥 社交 / Two Social"):
-                dest_path = os.path.join(
-                    get_data_path(), "two_social", os.path.basename(folder_path)
-                )
+                dest_path = os.path.join(get_data_path(), "two_social", os.path.basename(folder_path))
                 move_selected_files(dest_path, selected_move_files, folder_path)
         with col5:
             if st.button("📍 位置偏好 / CPP"):
-                dest_path = os.path.join(
-                    get_data_path(), "mouse_cpp", os.path.basename(folder_path)
-                )
+                dest_path = os.path.join(get_data_path(), "mouse_cpp", os.path.basename(folder_path))
                 move_selected_files(dest_path, selected_move_files, folder_path)
         with col6:
             if st.button("🐭 游泳 / Swimming"):
-                dest_path = os.path.join(
-                    get_data_path(), "mouse_swimming", os.path.basename(folder_path)
-                )
+                dest_path = os.path.join(get_data_path(), "mouse_swimming", os.path.basename(folder_path))
                 move_selected_files(dest_path, selected_move_files, folder_path)
 else:
     st.info("⚠️ 请先选择工作目录 / Please select a working directory first")

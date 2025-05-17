@@ -6,12 +6,9 @@ import pandas as pd
 import streamlit as st
 from scipy.interpolate import interp1d
 from scipy.ndimage import gaussian_filter
-from scipy.spatial.distance import pdist, squareform
 
 
-def process_mouse_social_video(
-    file_path, folder_path, confidence_threshold=0.9, close_distance=15, far_distance=35
-):
+def process_mouse_social_video(file_path, folder_path, confidence_threshold=0.9, close_distance=15, far_distance=35):
     """处理单个两鼠社交实验视频的分析结果
     Process single two-mouse social test video analysis results
 
@@ -100,13 +97,7 @@ def process_mouse_social_video(
 
             # 计算各种互动指标
             close_interaction = np.sum(segment_nose_dist < close_distance) / frame_rate
-            medium_interaction = (
-                np.sum(
-                    (segment_nose_dist >= close_distance)
-                    & (segment_nose_dist < far_distance)
-                )
-                / frame_rate
-            )
+            medium_interaction = np.sum((segment_nose_dist >= close_distance) & (segment_nose_dist < far_distance)) / frame_rate
             far_interaction = np.sum(segment_nose_dist >= far_distance) / frame_rate
 
             # 计算平均距离和标准差
@@ -134,18 +125,10 @@ def process_mouse_social_video(
         # 计算总体统计数据
         total_data = {
             "总时长 / Total Duration (s)": total_frames / frame_rate,
-            "总近距离互动时间 / Total Close Interaction Time (s)": np.sum(
-                nose_dist < close_distance
-            )
+            "总近距离互动时间 / Total Close Interaction Time (s)": np.sum(nose_dist < close_distance) / frame_rate,
+            "总中等距离时间 / Total Medium Distance Time (s)": np.sum((nose_dist >= close_distance) & (nose_dist < far_distance))
             / frame_rate,
-            "总中等距离时间 / Total Medium Distance Time (s)": np.sum(
-                (nose_dist >= close_distance) & (nose_dist < far_distance)
-            )
-            / frame_rate,
-            "总远距离时间 / Total Far Distance Time (s)": np.sum(
-                nose_dist >= far_distance
-            )
-            / frame_rate,
+            "总远距离时间 / Total Far Distance Time (s)": np.sum(nose_dist >= far_distance) / frame_rate,
             "平均鼻部距离 / Average Nose Distance": np.nanmean(nose_dist),
             "鼻部距离标准差 / Nose Distance Std": np.nanstd(nose_dist),
             "平均身体距离 / Average Body Distance": np.nanmean(body_dist),
@@ -213,9 +196,7 @@ def process_mouse_social_video(
         return None
 
 
-def process_social_files(
-    folder_path, confidence_threshold=0.9, close_distance=15, far_distance=35
-):
+def process_social_files(folder_path, confidence_threshold=0.9, close_distance=15, far_distance=35):
     """处理文件夹中的所有两鼠社交实验视频分析结果
     Process all two-mouse social test video analysis results in the folder
 
@@ -227,11 +208,7 @@ def process_social_files(
     """
     try:
         # 查找所有以"00000.csv"结尾的文件
-        file_paths = [
-            os.path.join(folder_path, f)
-            for f in os.listdir(folder_path)
-            if f.endswith("00000.csv")
-        ]
+        file_paths = [os.path.join(folder_path, f) for f in os.listdir(folder_path) if f.endswith("00000.csv")]
 
         if not file_paths:
             st.warning("未找到分析结果文件 / No analysis result files found")
@@ -252,9 +229,7 @@ def process_social_files(
 
         # 显示处理结果
         if processed_files_list:
-            st.success(
-                f"✅ 成功处理 {len(processed_files_list)} 个文件 / Successfully processed {len(processed_files_list)} files"
-            )
+            st.success(f"✅ 成功处理 {len(processed_files_list)} 个文件 / " f"Successfully processed {len(processed_files_list)} files")
             for result in processed_files_list:
                 st.write(result)
         else:

@@ -4,36 +4,27 @@ import shutil
 import subprocess
 
 import cv2
-import numpy as np
-
-# Data handling
-import pandas as pd
 import streamlit as st
 
-# Utilization and helpers
 from src.core.config import get_root_path
-from src.core.helpers.video_combiner import create_video_combination_script
-
-# File processing
-from src.core.processing.mouse_scratch_video_processing import (
-    process_mouse_scratch_video,
-    process_scratch_files,
-)
 from src.core.utils.execute_selected_scripts import (
     execute_selected_scripts,
     fetch_last_lines_of_logs,
 )
 from src.core.utils.file_utils import (
     create_folder_if_not_exists,
-    create_new_folder,
-    display_folder_contents,
     list_directories,
     select_python_files,
-    select_video_files,
     upload_files,
 )
 from src.core.utils.gpu_selector import setup_gpu_selection
 from src.core.utils.gpu_utils import display_gpu_usage
+
+# Data handling
+
+# Utilization and helpers
+
+# File processing
 
 
 def extract_specific_frames(video_path):
@@ -77,9 +68,7 @@ def show_cropped_frame(frame_path, x, y, width, height):
         st.error("No frame has been saved yet to show.")
 
 
-def create_extract_script(
-    video_path, x, y, width, height, start, end, output_directory, deviceID=0
-):
+def create_extract_script(video_path, x, y, width, height, start, end, output_directory, deviceID=0):
     """
     Generates a Python script to crop and extract a segment of a video using ffmpeg, specifying a GPU device.
 
@@ -99,9 +88,7 @@ def create_extract_script(
     """
     # Calculate the start time and duration from input minutes
     start_time = str(datetime.timedelta(minutes=start))  # Converts to 'HH:MM:SS' format
-    duration = str(
-        datetime.timedelta(minutes=(end - start))
-    )  # Converts to 'HH:MM:SS' format
+    duration = str(datetime.timedelta(minutes=(end - start)))  # Converts to 'HH:MM:SS' format
 
     # Extract the base name of the video file without the extension
     video_base_name = os.path.splitext(os.path.basename(video_path))[0]
@@ -120,20 +107,39 @@ def create_extract_script(
     with open(script_path, "w") as f:
         f.write("import subprocess\n")
         # Construct the ffmpeg command using hardware acceleration and specific codecs
-        command = f"""subprocess.run('ffmpeg -hwaccel cuda -hwaccel_device {deviceID} -c:v h264_cuvid -ss "{start_time}" -t "{duration}" -i "{video_path}" -vf "crop={width}:{height}:{x}:{y},fps=30" -c:v h264_nvenc -gpu {deviceID} -an "{output_full_path}"', shell=True)"""
+        command_parts = [
+            "ffmpeg",
+            "-hwaccel",
+            "cuda",
+            "-hwaccel_device",
+            str(deviceID),
+            "-c:v",
+            "h264_cuvid",
+            "-ss",
+            f'"{start_time}"',
+            "-t",
+            f'"{duration}"',
+            "-i",
+            f'"{video_path}"',
+            "-vf",
+            f'"crop={width}:{height}:{x}:{y},fps=30"',
+            "-c:v",
+            "h264_nvenc",
+            "-gpu",
+            str(deviceID),
+            "-an",
+            f'"{output_full_path}"',
+        ]
+        command = f"subprocess.run({' '.join(command_parts)}, shell=True)"
         f.write(command + "\n")
 
     return script_path
 
 
-def create_extract_script_CPU(
-    video_path, x, y, width, height, start, end, output_directory, deviceID=0
-):
+def create_extract_script_CPU(video_path, x, y, width, height, start, end, output_directory, deviceID=0):
     # Calculate the start time and duration from input minutes
     start_time = str(datetime.timedelta(minutes=start))  # Converts to 'HH:MM:SS' format
-    duration = str(
-        datetime.timedelta(minutes=(end - start))
-    )  # Converts to 'HH:MM:SS' format
+    duration = str(datetime.timedelta(minutes=(end - start)))  # Converts to 'HH:MM:SS' format
 
     # Extract the base name of the video file without the extension
     video_base_name = os.path.splitext(os.path.basename(video_path))[0]
@@ -152,7 +158,26 @@ def create_extract_script_CPU(
     with open(script_path, "w") as f:
         f.write("import subprocess\n")
         # Construct the ffmpeg command using hardware acceleration and specific codecs
-        command = f"""subprocess.run('ffmpeg -hwaccel cuda -hwaccel_device {deviceID} -ss "{start_time}" -t "{duration}" -i "{video_path}" -vf "crop={width}:{height}:{x}:{y},fps=30" -c:v h264_nvenc -an "{output_full_path}"', shell=True)"""
+        command_parts = [
+            "ffmpeg",
+            "-hwaccel",
+            "cuda",
+            "-hwaccel_device",
+            str(deviceID),
+            "-ss",
+            f'"{start_time}"',
+            "-t",
+            f'"{duration}"',
+            "-i",
+            f'"{video_path}"',
+            "-vf",
+            f'"crop={width}:{height}:{x}:{y},fps=30"',
+            "-c:v",
+            "h264_nvenc",
+            "-an",
+            f'"{output_full_path}"',
+        ]
+        command = f"subprocess.run({' '.join(command_parts)}, shell=True)"
         f.write(command + "\n")
 
     return script_path
@@ -189,10 +214,9 @@ def move_selected_files(dest_folder_path, selected_files, combined_video_path):
 
 def video_crop_page():
     root_directory = os.path.join(get_root_path(), "video_prepare")
-    current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     folder_name = datetime.datetime.now().strftime("%Y-%m-%d")
     folder_path = os.path.join(root_directory, folder_name)
-    web_log_file_path = os.path.join(get_root_path(), "streamlit", "log", "usage.txt")
+    os.path.join(get_root_path(), "streamlit", "log", "usage.txt")
 
     # 页面标题和说明
     st.title("✂️ 视频剪辑工具 / Video Crop Tool")
@@ -203,23 +227,23 @@ def video_crop_page():
         #### 视频要求 / Video Requirements:
         - 格式为MP4 / Format: MP4
         - 已完成视频拼接 / Completed video preparation
-        
+
         #### 剪辑参数说明 / Crop Parameters:
         - X, Y: 剪辑起始坐标 / Starting coordinates
         - 宽度, 高度: 剪辑区域大小 / Crop area size
         - 开始时间, 结束时间: 视频片段时间范围（分钟）/ Video segment time range (minutes)
-        
+
         #### GPU使用提示 / GPU Usage Note:
-        - 如果GPU显存占用率很高，说明其他用户正在使用  
+        - 如果GPU显存占用率很高，说明其他用户正在使用
           If GPU memory usage is high, other users are currently using it
-        - 请等待GPU资源释放后再开始新的工作  
+        - 请等待GPU资源释放后再开始新的工作
           Please wait until GPU resources are available before starting new work
         """
         )
 
     # GPU状态显示
     st.subheader("🖥️ GPU 状态 / GPU Status")
-    high_memory_usage = display_gpu_usage()
+    display_gpu_usage()
 
     # GPU配置
     st.subheader("⚙️ GPU 配置 / GPU Configuration")
@@ -232,9 +256,7 @@ def video_crop_page():
     st.subheader("📁 工作目录 / Working Directory")
     directories = list_directories(root_directory)
     if directories:
-        selected_directory = st.selectbox(
-            "📂 选择工作目录 / Choose a directory", directories
-        )
+        selected_directory = st.selectbox("📂 选择工作目录 / Choose a directory", directories)
         folder_path = os.path.join(root_directory, selected_directory, "combined-video")
         st.success(f"当前工作目录 / Current working folder: {folder_path}")
     else:
@@ -250,11 +272,7 @@ def video_crop_page():
         upload_files(folder_path)
 
     # 视频文件列表
-    video_files = [
-        file
-        for file in os.listdir(combined_video_path)
-        if file.lower().endswith(".mp4")
-    ]
+    video_files = [file for file in os.listdir(combined_video_path) if file.lower().endswith(".mp4")]
     if video_files:
         st.subheader("🎥 视频预览 / Video Preview")
         selected_video = st.selectbox(
@@ -269,9 +287,7 @@ def video_crop_page():
             st.markdown("#### 视频帧预览 / Frame Preview")
             cols = st.columns(len(frames))
             for i, (col, frame) in enumerate(zip(cols, frames)):
-                col.image(
-                    frame, channels="BGR", use_column_width=True, caption=f"Frame {i+1}"
-                )
+                col.image(frame, channels="BGR", use_column_width=True, caption=f"Frame {i+1}")
 
         # 剪辑参数设置
         st.subheader("✂️ 剪辑参数 / Crop Parameters")
@@ -279,21 +295,13 @@ def video_crop_page():
         # 位置和大小设置
         col1, col2, col3, col4 = st.columns(4)
         with col1:
-            x = st.number_input(
-                "X坐标 / X Position:", min_value=0, value=100, key="x_pos"
-            )
+            x = st.number_input("X坐标 / X Position:", min_value=0, value=100, key="x_pos")
         with col2:
-            y = st.number_input(
-                "Y坐标 / Y Position:", min_value=0, value=100, key="y_pos"
-            )
+            y = st.number_input("Y坐标 / Y Position:", min_value=0, value=100, key="y_pos")
         with col3:
-            width = st.number_input(
-                "宽度 / Width:", min_value=1, value=500, key="width"
-            )
+            width = st.number_input("宽度 / Width:", min_value=1, value=500, key="width")
         with col4:
-            height = st.number_input(
-                "高度 / Height:", min_value=1, value=500, key="height"
-            )
+            height = st.number_input("高度 / Height:", min_value=1, value=500, key="height")
 
         # 时间范围设置
         col5, col6 = st.columns(2)
@@ -354,17 +362,11 @@ def video_crop_page():
                     deviceID,
                 )
                 st.success(f"✅ 脚本生成成功 / Script generated: {script_name}")
-                st.session_state["current_gpu_index"] = (
-                    st.session_state["current_gpu_index"] + 1
-                ) % len(selected_gpus)
+                st.session_state["current_gpu_index"] = (st.session_state["current_gpu_index"] + 1) % len(selected_gpus)
 
         with col8:
-            if st.button(
-                "💻 生成CPU处理脚本(非H.264视频) / Create CPU Script (Non-H.264)"
-            ):
-                script_name = create_extract_script_CPU(
-                    video_path, x, y, width, height, start, end, combined_video_path
-                )
+            if st.button("💻 生成CPU处理脚本(非H.264视频) / Create CPU Script (Non-H.264)"):
+                script_name = create_extract_script_CPU(video_path, x, y, width, height, start, end, combined_video_path)
                 st.success(f"✅ 脚本生成成功 / Script generated: {script_name}")
     else:
         st.warning("📭 未找到视频文件 / No video files found")
@@ -376,14 +378,10 @@ def video_crop_page():
     python_files = select_python_files(combined_video_path)
 
     if python_files:
-        if st.button(
-            "▶️ 执行选中的脚本 / Execute Selected Scripts", key="execute_scripts"
-        ):
+        if st.button("▶️ 执行选中的脚本 / Execute Selected Scripts", key="execute_scripts"):
             try:
                 output_directory = combined_video_path
-                log_files = execute_selected_scripts(
-                    folder_path, python_files, output_directory, execute=True
-                )
+                log_files = execute_selected_scripts(folder_path, python_files, output_directory, execute=True)
                 st.session_state["log_files"] = log_files
                 st.success("✅ 脚本正在执行 / Scripts are being executed")
             except subprocess.CalledProcessError as e:
@@ -396,11 +394,7 @@ def video_crop_page():
     st.write("Check and manage directories:")
 
     # List all files that meet the criteria from combined_video_path
-    video_files = [
-        f
-        for f in os.listdir(combined_video_path)
-        if "_" in f and f.lower().endswith(".mp4")
-    ]
+    video_files = [f for f in os.listdir(combined_video_path) if "_" in f and f.lower().endswith(".mp4")]
     selected_files = st.multiselect(
         "选择要移动的视频文件 / Select video files to move:",
         video_files,
@@ -420,9 +414,7 @@ def video_crop_page():
             move_selected_files(dest_folder_path, selected_files, combined_video_path)
     with col11:
         if st.button("Three-Chamber", key="move_to_three_chamber"):
-            dest_folder_path = os.path.join(
-                root_path, "Three-Chamber/", selected_directory
-            )
+            dest_folder_path = os.path.join(root_path, "Three-Chamber/", selected_directory)
             move_selected_files(dest_folder_path, selected_files, combined_video_path)
     with col12:
         if st.button("Two-Saver", key="move_to_two_saver"):

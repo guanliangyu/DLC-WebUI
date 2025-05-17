@@ -15,7 +15,7 @@ def setup_gpu_selection():
         return 0, []
 
     # 创建GPU选择选项
-    gpu_options = [f"GPU {i}" for i in range(gpu_count)]
+    [f"GPU {i}" for i in range(gpu_count)]
     selected_gpus = st.multiselect(
         "选择要使用的GPU / Select GPUs to use",
         range(gpu_count),

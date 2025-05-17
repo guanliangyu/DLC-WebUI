@@ -1,7 +1,5 @@
 from unittest.mock import MagicMock, patch
 
-import pytest
-
 from src.core.gpu.gpu_utils import display_gpu_usage, get_gpu_utilization
 
 

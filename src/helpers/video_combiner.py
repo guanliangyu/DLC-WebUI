@@ -10,7 +10,8 @@ def create_video_combination_script(folder_path, selected_files, output_director
     if not os.path.exists(output_directory):
         os.makedirs(output_directory)
 
-    base_name = f"{os.path.basename(selected_files[0]).split('.')[0]}-{len(selected_files)}-combined"
+    first_file_base = os.path.basename(selected_files[0]).split(".")[0]
+    base_name = f"{first_file_base}-{len(selected_files)}-combined"
     text_filename = f"{base_name}.txt"
     script_filename = f"{base_name}.py"
     output_filename = f"{base_name}.mp4"
@@ -18,9 +19,7 @@ def create_video_combination_script(folder_path, selected_files, output_director
     # Update paths for text file, script, and output video
     text_path = os.path.join(folder_path, text_filename)
     script_path = os.path.join(folder_path, script_filename)
-    output_full_path = os.path.join(
-        output_directory, output_filename
-    )  # Output video in 'combined-video' subdirectory
+    output_full_path = os.path.join(output_directory, output_filename)  # Output video in 'combined-video' subdirectory
 
     with open(text_path, "w") as txt_file:
         for file in selected_files:

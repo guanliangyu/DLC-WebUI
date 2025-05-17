@@ -18,9 +18,7 @@ def upload_files(folder_path):
     """
     Handles the upload of files to the specified directory and saves them without any additional processing.
     """
-    uploaded_files = st.file_uploader(
-        "Choose a file", type="mp4", accept_multiple_files=True
-    )
+    uploaded_files = st.file_uploader("Choose a file", type="mp4", accept_multiple_files=True)
     if uploaded_files:
         for uploaded_file in uploaded_files:
             file_path = os.path.join(folder_path, uploaded_file.name)
@@ -34,11 +32,7 @@ def upload_files(folder_path):
 
 def list_directories(root_directory):
     try:
-        directories = [
-            d
-            for d in os.listdir(root_directory)
-            if os.path.isdir(os.path.join(root_directory, d))
-        ]
+        directories = [d for d in os.listdir(root_directory) if os.path.isdir(os.path.join(root_directory, d))]
         directories.sort()
     except Exception as e:
         st.error(f"Failed to list directories: {e}")
@@ -95,9 +89,7 @@ def select_video_files(folder_path):
     """
     Displays a multi-select widget with video files sorted by name for user to select for processing.
     """
-    files = [
-        f for f in os.listdir(folder_path) if os.path.splitext(f)[1].lower() == ".mp4"
-    ]
+    files = [f for f in os.listdir(folder_path) if os.path.splitext(f)[1].lower() == ".mp4"]
     files.sort()
     selected_files = st.multiselect("Select video files for analysis", files)
     return [os.path.join(folder_path, f) for f in selected_files]

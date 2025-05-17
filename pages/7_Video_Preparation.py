@@ -1,12 +1,7 @@
-import os
-import sys
-
-# 添加项目根目录到Python路径
-root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if root_dir not in sys.path:
-    sys.path.append(root_dir)
-
 import datetime
+import os
+import shutil
+import sys
 
 import streamlit as st
 
@@ -18,6 +13,11 @@ from src.core.utils.execute_selected_scripts import (
     fetch_last_lines_of_logs,
 )
 from src.core.utils.file_utils import list_directories, select_video_files, upload_files
+
+# 添加项目根目录到Python路径
+root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if root_dir not in sys.path:
+    sys.path.append(root_dir)
 
 # 设置页面配置
 st.set_page_config(
@@ -40,7 +40,8 @@ with st.expander("💡 使用说明 / Instructions", expanded=True):
     #### 视频要求 / Video Requirements:
     - 输入格式：MP4 / Input Format: MP4
     - 输出格式：MP4 / Output Format: MP4
-    - 请确保所有视频片段分辨率和帧率一致 / Please ensure all video segments have the same resolution and frame rate
+    - 请确保所有视频片段分辨率和帧率一致 / Please ensure all video segments
+      have the same resolution and frame rate
     """
     )
 
@@ -78,16 +79,12 @@ if video_files:
     # 创建两列布局
     col1, col2 = st.columns(2)
     with col1:
-        if st.button(
-            "📝 生成合并脚本 / Generate Combination Script", use_container_width=True
-        ):
+        if st.button("📝 生成合并脚本 / Generate Combination Script", use_container_width=True):
             try:
                 # 记录操作日志
                 user_name = st.session_state.get("name", "unknown_user")
                 with open(web_log_file_path, "a", encoding="utf-8") as web_log_file:
-                    web_log_file.write(
-                        f"\n{user_name}, {current_time}, Generate Video Combination Script\n"
-                    )
+                    web_log_file.write(f"\n{user_name}, {current_time}, Generate Video Combination Script\n")
 
                 with st.spinner("生成脚本中 / Generating script..."):
                     # 获取第一个和最后一个视频文件的名称（不包含扩展名）
@@ -104,13 +101,9 @@ if video_files:
                     )
 
                     if script_path:
-                        st.success(
-                            f"✅ 脚本已生成 / Script generated: {os.path.basename(script_path)}"
-                        )
+                        st.success(f"✅ 脚本已生成 / Script generated: " f"{os.path.basename(script_path)}")
                     else:
-                        st.error(
-                            "❌ 创建合并脚本失败 / Failed to create combination script"
-                        )
+                        st.error("❌ 创建合并脚本失败 / Failed to create combination script")
 
             except Exception as e:
                 st.error(f"❌ 生成脚本失败 / Failed to generate script: {str(e)}")
@@ -122,23 +115,17 @@ if video_files:
             selected_scripts = st.multiselect(
                 "选择要执行的脚本 / Select scripts to execute",
                 script_files,
-                help="选择需要执行的合并脚本 / Select combination scripts to execute",
+                help=("选择需要执行的合并脚本 / " "Select combination scripts to execute"),
             )
 
-            if selected_scripts and st.button(
-                "🚀 执行选定脚本 / Execute Selected Scripts", use_container_width=True
-            ):
+            if selected_scripts and st.button("🚀 执行选定脚本 / Execute Selected Scripts", use_container_width=True):
                 try:
                     with st.spinner("执行脚本中 / Executing scripts..."):
                         # 执行合并脚本
-                        execute_selected_scripts(
-                            folder_path, selected_scripts, folder_path
-                        )
+                        execute_selected_scripts(folder_path, selected_scripts, folder_path)
 
                         # 创建目标目录（视频裁剪目录下的同名文件夹）
-                        target_directory = os.path.join(
-                            get_data_path(), "video_crop", os.path.basename(folder_path)
-                        )
+                        target_directory = os.path.join(get_data_path(), "video_crop", os.path.basename(folder_path))
                         if not os.path.exists(target_directory):
                             os.makedirs(target_directory)
 
@@ -147,24 +134,18 @@ if video_files:
                             # 从脚本名称推断合并后的视频名称
                             script_base = os.path.splitext(script_name)[0]
                             combined_video_name = f"{script_base}_combined.mp4"
-                            combined_video_path = os.path.join(
-                                folder_path, combined_video_name
-                            )
+                            combined_video_path = os.path.join(folder_path, combined_video_name)
 
                             if os.path.exists(combined_video_path):
-                                import shutil
-
                                 shutil.move(
                                     combined_video_path,
                                     os.path.join(target_directory, combined_video_name),
                                 )
                                 st.success(
-                                    f"✅ 视频已合并并移动到裁剪目录 / Video combined and moved to crop directory: {combined_video_name}"
+                                    f"✅ 视频已合并并移动到裁剪目录 / Video combined and moved " f"to crop directory: {combined_video_name}"
                                 )
                             else:
-                                st.error(
-                                    f"❌ 合并后的视频文件未找到 / Combined video file not found: {combined_video_name}"
-                                )
+                                st.error(f"❌ 合并后的视频文件未找到 / Combined video file not found: " f"{combined_video_name}")
 
                 except Exception as e:
                     st.error(f"❌ 执行脚本失败 / Failed to execute scripts: {str(e)}")
@@ -180,6 +161,4 @@ if video_files:
                 with st.expander(f"日志文件 / Log file: {log_file}", expanded=True):
                     st.code(log_content)
 else:
-    st.warning(
-        "⚠️ 请先选择要合并的视频文件 / Please select video files to combine first"
-    )
+    st.warning("⚠️ 请先选择要合并的视频文件 / Please select video files to combine first")

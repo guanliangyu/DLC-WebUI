@@ -1,22 +1,21 @@
 import hashlib
 import os
-import shutil
 import tempfile
 import zipfile
+import base64
 
 import streamlit as st
 
 
 def create_download_button(directory, pattern="*", key=None):
-    """Creates a download button for files in a specified directory matching the pattern."""
+    """Creates a download button for files in a specified directory
+    matching the pattern."""
     with tempfile.TemporaryDirectory() as tmpdirname:
         # Simplify the zip filename to avoid long names
         if isinstance(pattern, list):
             # Hash the string representation of the list to get a unique short name
             hash_object = hashlib.sha1(str(pattern).encode())
-            hex_dig = hash_object.hexdigest()[
-                :10
-            ]  # Get first 10 characters of the hash
+            hex_dig = hash_object.hexdigest()[:10]  # Get first 10 characters of the hash
             zip_filename = f"files_{hex_dig}.zip"
         else:
             pattern_clean = pattern.replace("*", "all").replace(".", "")
@@ -45,9 +44,7 @@ def create_download_button(directory, pattern="*", key=None):
         with open(zip_path, "rb") as f:
             btn_key = key if key else "download_btn"
             st.write("Click the button below to download results")
-            st.download_button(
-                f"Download {zip_filename}", f, file_name=zip_filename, key=btn_key
-            )
+            st.download_button(f"Download {zip_filename}", f, file_name=zip_filename, key=btn_key)
 
 
 # Example usage in a Streamlit app
@@ -55,12 +52,16 @@ def filter_and_zip_files(directory, excluded_ext=None, included_ext=None):
     """Utility to create zip for specific file types."""
     pattern = included_ext if included_ext else "*"
     if excluded_ext:
-        all_files = [
-            f
-            for f in os.listdir(directory)
-            if os.path.isfile(os.path.join(directory, f))
-        ]
-        pattern = [
-            f for f in all_files if not any(f.endswith(ext) for ext in excluded_ext)
-        ]
+        all_files = [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
+        pattern = [f for f in all_files if not any(f.endswith(ext) for ext in excluded_ext)]
     create_download_button(directory, pattern=pattern)
+
+
+def create_download_link(file_path, button_text):
+    with open(file_path, "rb") as f:
+        bytes_data = f.read()
+    b64 = base64.b64encode(bytes_data).decode()
+    href = (
+        f'<a href="data:application/octet-stream;base64,{b64}" ' f'download="{os.path.basename(file_path)}">{button_text}</a>'
+    )
+    st.markdown(href, unsafe_allow_html=True)

@@ -1,14 +1,11 @@
 import os
 import subprocess
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import Dict, List, Optional
 
 import streamlit as st
 
 
-def execute_script(
-    script_path: str, working_directory: str, output_directory: str
-) -> tuple:
+def execute_script(script_path: str, working_directory: str, output_directory: str) -> tuple:
     """
     执行单个脚本
     Execute a single script
@@ -36,9 +33,7 @@ def execute_script(
         stdout, stderr = process.communicate()
 
         # 写入日志
-        log_file = os.path.join(
-            output_directory, f"{os.path.splitext(script_name)[0]}.log"
-        )
+        log_file = os.path.join(output_directory, f"{os.path.splitext(script_name)[0]}.log")
         with open(log_file, "w", encoding="utf-8") as f:
             f.write(f"Standard Output:\n{stdout}\n\nErrors:\n{stderr}")
 
@@ -50,9 +45,7 @@ def execute_script(
         return script_name, False, str(e)
 
 
-def execute_selected_scripts(
-    working_directory: str, script_files: list, output_directory: str
-) -> None:
+def execute_selected_scripts(working_directory: str, script_files: list, output_directory: str) -> None:
     """
     并行执行选定的Python脚本
     Execute selected Python scripts in parallel
@@ -73,9 +66,7 @@ def execute_selected_scripts(
         status_text = st.empty()
 
         # 准备脚本路径列表
-        script_paths = [
-            os.path.join(working_directory, script) for script in script_files
-        ]
+        script_paths = [os.path.join(working_directory, script) for script in script_files]
         total_scripts = len(script_paths)
         completed_scripts = 0
 
@@ -83,9 +74,7 @@ def execute_selected_scripts(
         with ThreadPoolExecutor() as executor:
             # 提交所有任务
             future_to_script = {
-                executor.submit(
-                    execute_script, script_path, working_directory, output_directory
-                ): script_path
+                executor.submit(execute_script, script_path, working_directory, output_directory): script_path
                 for script_path in script_paths
             }
 
@@ -97,9 +86,7 @@ def execute_selected_scripts(
                 # 更新进度
                 progress = completed_scripts / total_scripts
                 progress_bar.progress(progress)
-                status_text.text(
-                    f"{progress_text} ({completed_scripts}/{total_scripts})"
-                )
+                status_text.text(f"{progress_text} ({completed_scripts}/{total_scripts})")
 
                 # 显示执行结果
                 if success:
@@ -111,9 +98,7 @@ def execute_selected_scripts(
         progress_bar.empty()
         status_text.empty()
 
-        st.success(
-            f"所有脚本执行完成 / All scripts completed ({completed_scripts}/{total_scripts})"
-        )
+        st.success(f"所有脚本执行完成 / All scripts completed ({completed_scripts}/{total_scripts})")
 
     except Exception as e:
         st.error(f"执行脚本时出错 / Error executing scripts: {str(e)}")
@@ -140,9 +125,7 @@ def fetch_last_lines_of_logs(directory: str, num_lines: int = 10) -> dict:
                     with open(file_path, "r", encoding="utf-8") as f:
                         # 读取所有行并保留最后num_lines行
                         lines = f.readlines()
-                        last_lines = (
-                            lines[-num_lines:] if len(lines) > num_lines else lines
-                        )
+                        last_lines = lines[-num_lines:] if len(lines) > num_lines else lines
                         log_contents[file] = "".join(last_lines)
                 except Exception as e:
                     log_contents[file] = f"Error reading log file: {str(e)}"

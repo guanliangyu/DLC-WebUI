@@ -43,9 +43,7 @@ def upload_files(folder_path: str) -> None:
                 file_path = os.path.join(folder_path, uploaded_file.name)
                 with open(file_path, "wb") as f:
                     f.write(uploaded_file.getbuffer())
-                st.success(
-                    f"文件上传成功 / File uploaded successfully: {uploaded_file.name}"
-                )
+                st.success(f"文件上传成功 / File uploaded successfully: {uploaded_file.name}")
             st.rerun()
     except Exception as e:
         st.error(f"文件上传失败 / Failed to upload files: {str(e)}")
@@ -64,19 +62,13 @@ def list_directories(root_directory: str) -> List[str]:
     try:
         if not os.path.exists(root_directory):
             return []
-        return [
-            d
-            for d in os.listdir(root_directory)
-            if os.path.isdir(os.path.join(root_directory, d))
-        ]
+        return [d for d in os.listdir(root_directory) if os.path.isdir(os.path.join(root_directory, d))]
     except Exception as e:
         st.error(f"列出目录失败 / Failed to list directories: {str(e)}")
         return []
 
 
-def display_folder_contents(
-    folder_path: str, selected_files: Optional[List[str]] = None
-) -> None:
+def display_folder_contents(folder_path: str, selected_files: Optional[List[str]] = None) -> None:
     """显示文件夹内容
     Display folder contents
 

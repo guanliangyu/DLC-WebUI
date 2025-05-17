@@ -63,16 +63,11 @@ def update_session_last_usage(log_message: str) -> None:
     Args:
         log_message (str): 日志消息
     """
-    if (
-        "last_log_line_usage" not in st.session_state
-        or st.session_state["last_log_line_usage"] != log_message
-    ):
+    if "last_log_line_usage" not in st.session_state or st.session_state["last_log_line_usage"] != log_message:
         st.session_state["last_log_line_usage"] = log_message
 
 
-def log_user_action(
-    user_name: str, action: str, file_path: Optional[str] = None
-) -> None:
+def log_user_action(user_name: str, action: str, file_path: Optional[str] = None) -> None:
     """
     记录用户操作
     Log user action

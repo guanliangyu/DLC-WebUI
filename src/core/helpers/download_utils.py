@@ -19,7 +19,10 @@ def create_download_button(file_path: str, button_text: str) -> None:
         with open(file_path, "rb") as f:
             bytes_data = f.read()
         b64 = base64.b64encode(bytes_data).decode()
-        href = f'<a href="data:application/octet-stream;base64,{b64}" download="{os.path.basename(file_path)}">{button_text}</a>'
+        href = (
+            f'<a href="data:application/octet-stream;base64,{b64}" '
+            f'download="{os.path.basename(file_path)}">{button_text}</a>'
+        )
         st.markdown(href, unsafe_allow_html=True)
     except Exception as e:
         st.error(f"创建下载按钮失败 / Failed to create download button: {str(e)}")
@@ -64,7 +67,7 @@ def filter_and_zip_files(
         with open(zip_path, "rb") as f:
             bytes_data = f.read()
         b64 = base64.b64encode(bytes_data).decode()
-        href = f'<a href="data:application/zip;base64,{b64}" download="results.zip">📥 下载ZIP文件 / Download ZIP</a>'
+        href = f'<a href="data:application/zip;base64,{b64}" ' f'download="results.zip">📥 下载ZIP文件 / Download ZIP</a>'
         st.markdown(href, unsafe_allow_html=True)
 
         # 删除临时zip文件

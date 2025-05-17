@@ -1,0 +1,23 @@
+[flake8]
+max-line-length = 128
+extend-ignore = E203,W503
+exclude =
+    .git,
+    __pycache__,
+    build,
+    dist,
+    venv,
+    .venv,
+    env,
+    .env
+    docs/conf.py # Often has different styling
+    notebooks/ # Jupyter notebooks often have different linting needs
+    *.egg-info/
+    */migrations/* # Django migrations
+    */static/*
+    */media/*
+    # Add other specific files or directories to exclude if needed
+# You can also add specific per-file-ignores if necessary:
+# per-file-ignores =
+#    src/legacy_code.py:E501,W293
+#    tests/conftest.py:F401 

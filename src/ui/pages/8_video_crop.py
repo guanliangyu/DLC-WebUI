@@ -65,49 +65,35 @@ def show():
             if st.button("✂️ 开始裁剪 / Start Cropping", use_container_width=True):
                 try:
                     with open(web_log_file_path, "a", encoding="utf-8") as web_log_file:
-                        web_log_file.write(
-                            f"\n{st.session_state['name']}, {current_time}\n"
-                        )
+                        web_log_file.write(f"\n{st.session_state['name']}, {current_time}\n")
 
                     with st.spinner("裁剪中 / Cropping..."):
-                        crop_video_files(
-                            folder_path, selected_files, start_time, duration
-                        )
+                        crop_video_files(folder_path, selected_files, start_time, duration)
                     st.success("✅ 视频裁剪完成 / Video cropping completed")
                 except Exception as e:
                     st.error(f"❌ 视频裁剪失败 / Video cropping failed: {e}")
         else:
-            st.warning(
-                "⚠️ 请先选择工作目录和视频文件 / Please select working directory and video files first"
-            )
+            st.warning("⚠️ 请先选择工作目录和视频文件 / Please select working directory and video files first")
 
     with tab2:
         st.subheader("📥 结果下载 / Result Download")
         if folder_path:
-            st.info(
-                f"当前工作目录 / Current working folder: {os.path.basename(folder_path)}"
-            )
+            st.info(f"当前工作目录 / Current working folder: {os.path.basename(folder_path)}")
 
             try:
                 col1, col2 = st.columns(2)
                 with col1:
-                    if st.button(
-                        "📦 下载所有文件 / Download All Files", use_container_width=True
-                    ):
+                    if st.button("📦 下载所有文件 / Download All Files", use_container_width=True):
                         filter_and_zip_files(folder_path)
 
                 with col2:
-                    if st.button(
-                        "📄 仅下载MP4文件 / Download Only MP4", use_container_width=True
-                    ):
+                    if st.button("📄 仅下载MP4文件 / Download Only MP4", use_container_width=True):
                         filter_and_zip_files(folder_path, included_ext=[".mp4"])
 
             except Exception as e:
                 st.error(f"❌ 文件下载出错 / Error during file download: {e}")
         else:
-            st.warning(
-                "⚠️ 请先在视频裁剪页面选择工作目录 / Please select a working directory in the video crop tab first"
-            )
+            st.warning("⚠️ 请先在视频裁剪页面选择工作目录 / Please select a working directory in the video crop tab first")
 
 
 if __name__ == "__main__":

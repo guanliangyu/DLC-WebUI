@@ -4,9 +4,7 @@ from typing import List, Optional
 import streamlit as st
 
 
-def upload_files(
-    allowed_types: List[str], upload_dir: str, key: Optional[str] = None
-) -> List[str]:
+def upload_files(allowed_types: List[str], upload_dir: str, key: Optional[str] = None) -> List[str]:
     """处理文件上传
     Handle file uploads
 
@@ -37,13 +35,9 @@ def upload_files(
                     with open(file_path, "wb") as f:
                         f.write(file.getbuffer())
                     uploaded_files.append(file_path)
-                    st.success(
-                        f"文件上传成功 / File uploaded successfully: {file.name}"
-                    )
+                    st.success(f"文件上传成功 / File uploaded successfully: {file.name}")
                 except Exception as e:
-                    st.error(
-                        f"上传文件失败 / Failed to upload file {file.name}: {str(e)}"
-                    )
+                    st.error(f"上传文件失败 / Failed to upload file {file.name}: {str(e)}")
 
     except Exception as e:
         st.error(f"文件上传过程出错 / Error during file upload: {str(e)}")

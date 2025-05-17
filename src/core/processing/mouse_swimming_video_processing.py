@@ -40,12 +40,7 @@ def process_mouse_swimming_video(file_path, folder_path, confidence_threshold=0.
 
         # 速度过滤和插值设置
         for i in range(1, total_frames):
-            if (
-                not np.isnan(x[i - 1])
-                and not np.isnan(x[i])
-                and not np.isnan(y[i - 1])
-                and not np.isnan(y[i])
-            ):
+            if not np.isnan(x[i - 1]) and not np.isnan(x[i]) and not np.isnan(y[i - 1]) and not np.isnan(y[i]):
                 dx = x[i] - x[i - 1]
                 dy = y[i] - y[i - 1]
                 speed = np.sqrt(dx**2 + dy**2) * frame_rate
@@ -76,9 +71,7 @@ def process_mouse_swimming_video(file_path, folder_path, confidence_threshold=0.
         y_smoothed = gaussian_filter(y, sigma=2)
 
         # 计算总移动距离
-        total_distance = np.sum(
-            np.sqrt(np.diff(x_smoothed) ** 2 + np.diff(y_smoothed) ** 2)
-        )
+        total_distance = np.sum(np.sqrt(np.diff(x_smoothed) ** 2 + np.diff(y_smoothed) ** 2))
 
         # 计算每5分钟段的距离
         segment_length = 5 * 60 * frame_rate  # 5分钟的帧数
@@ -89,19 +82,14 @@ def process_mouse_swimming_video(file_path, folder_path, confidence_threshold=0.
             start_frame = i * segment_length
             end_frame = start_frame + segment_length
             segment_distance = np.sum(
-                np.sqrt(
-                    np.diff(x_smoothed[start_frame:end_frame]) ** 2
-                    + np.diff(y_smoothed[start_frame:end_frame]) ** 2
-                )
+                np.sqrt(np.diff(x_smoothed[start_frame:end_frame]) ** 2 + np.diff(y_smoothed[start_frame:end_frame]) ** 2)
             )
             segment_distances[f"{i*5}-{(i+1)*5}分钟 / minutes"] = segment_distance
 
         # 可视化：轨迹图
         plt.figure(figsize=(10, 10))
         plt.plot(x_smoothed, y_smoothed, "b-", label="游泳轨迹 / Swimming Trajectory")
-        plt.scatter(
-            x_smoothed[0], y_smoothed[0], c="green", s=100, label="起点 / Start"
-        )
+        plt.scatter(x_smoothed[0], y_smoothed[0], c="green", s=100, label="起点 / Start")
         plt.scatter(x_smoothed[-1], y_smoothed[-1], c="red", s=100, label="终点 / End")
         plt.title("小鼠游泳轨迹 / Mouse Swimming Trajectory")
         plt.xlabel("X 坐标 / X Position")
@@ -115,15 +103,11 @@ def process_mouse_swimming_video(file_path, folder_path, confidence_threshold=0.
         plt.close()
 
         # 保存分段距离数据
-        pd.DataFrame.from_dict(
-            segment_distances, orient="index", columns=["距离 / Distance"]
-        ).to_csv(segment_file_path)
+        pd.DataFrame.from_dict(segment_distances, orient="index", columns=["距离 / Distance"]).to_csv(segment_file_path)
 
         # 保存总体数据
         with open(total_file_path, "w", encoding="utf-8") as f:
-            f.write(
-                f"视频总时长 / Total video duration: {total_frames / frame_rate} 秒/seconds\n"
-            )
+            f.write(f"视频总时长 / Total video duration: {total_frames / frame_rate} 秒/seconds\n")
             f.write(f"总移动距离 / Total distance moved: {total_distance} 单位/units\n")
 
         st.success(f"✅ 处理完成 / Processing completed: {os.path.basename(file_path)}")
@@ -134,9 +118,7 @@ def process_mouse_swimming_video(file_path, folder_path, confidence_threshold=0.
         return None
 
 
-def process_swimming_files(
-    folder_path, confidence_threshold=0.9, min_distance=15, max_distance=35
-):
+def process_swimming_files(folder_path, confidence_threshold=0.9, min_distance=15, max_distance=35):
     """处理文件夹中的所有游泳视频分析结果
     Process all swimming video analysis results in the folder
 
@@ -148,11 +130,7 @@ def process_swimming_files(
     """
     try:
         # 查找所有以"00000.csv"结尾的文件
-        file_paths = [
-            os.path.join(folder_path, f)
-            for f in os.listdir(folder_path)
-            if f.endswith("00000.csv")
-        ]
+        file_paths = [os.path.join(folder_path, f) for f in os.listdir(folder_path) if f.endswith("00000.csv")]
 
         if not file_paths:
             st.warning("未找到分析结果文件 / No analysis result files found")
@@ -161,17 +139,13 @@ def process_swimming_files(
         # 处理每个文件
         processed_files_list = []
         for file_path in file_paths:
-            result = process_mouse_swimming_video(
-                file_path, folder_path, confidence_threshold
-            )
+            result = process_mouse_swimming_video(file_path, folder_path, confidence_threshold)
             if result:
                 processed_files_list.append(result)
 
         # 显示处理结果
         if processed_files_list:
-            st.success(
-                f"✅ 成功处理 {len(processed_files_list)} 个文件 / Successfully processed {len(processed_files_list)} files"
-            )
+            st.success(f"✅ 成功处理 {len(processed_files_list)} 个文件 / " f"Successfully processed {len(processed_files_list)} files")
             for result in processed_files_list:
                 st.write(result)
         else:

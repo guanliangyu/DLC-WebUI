@@ -73,28 +73,20 @@ def show():
             if st.button("🚀 开始处理 / Start Processing", use_container_width=True):
                 try:
                     with open(web_log_file_path, "a", encoding="utf-8") as web_log_file:
-                        web_log_file.write(
-                            f"\n{st.session_state['name']}, {current_time}\n"
-                        )
+                        web_log_file.write(f"\n{st.session_state['name']}, {current_time}\n")
 
                     with st.spinner("处理中 / Processing..."):
-                        process_video_files(
-                            folder_path, selected_files, target_fps, target_size
-                        )
+                        process_video_files(folder_path, selected_files, target_fps, target_size)
                     st.success("✅ 视频处理完成 / Video processing completed")
                 except Exception as e:
                     st.error(f"❌ 视频处理失败 / Video processing failed: {e}")
         else:
-            st.warning(
-                "⚠️ 请先选择工作目录和视频文件 / Please select working directory and video files first"
-            )
+            st.warning("⚠️ 请先选择工作目录和视频文件 / Please select working directory and video files first")
 
     with tab2:
         st.subheader("🔄 视频合并 / Video Merge")
         if folder_path:
-            st.info(
-                f"当前工作目录 / Current working folder: {os.path.basename(folder_path)}"
-            )
+            st.info(f"当前工作目录 / Current working folder: {os.path.basename(folder_path)}")
 
             # 选择要合并的视频
             st.subheader("📁 选择视频 / Select Videos")
@@ -115,10 +107,7 @@ def show():
                 if st.button("🔄 合并视频 / Merge Videos", use_container_width=True):
                     try:
                         with st.spinner("合并中 / Merging..."):
-                            video_paths = [
-                                os.path.join(folder_path, video)
-                                for video in selected_videos
-                            ]
+                            video_paths = [os.path.join(folder_path, video) for video in selected_videos]
                             output_path = os.path.join(folder_path, output_name)
                             merge_videos(video_paths, output_path)
                         st.success("✅ 视频合并完成 / Video merge completed")
@@ -127,37 +116,27 @@ def show():
             else:
                 st.warning("⚠️ 请选择要合并的视频 / Please select videos to merge")
         else:
-            st.warning(
-                "⚠️ 请先在视频处理页面选择工作目录 / Please select a working directory in the video processing tab first"
-            )
+            st.warning("⚠️ 请先在视频处理页面选择工作目录 / Please select a working directory in the video " "processing tab first")
 
     with tab3:
         st.subheader("📥 结果下载 / Result Download")
         if folder_path:
-            st.info(
-                f"当前工作目录 / Current working folder: {os.path.basename(folder_path)}"
-            )
+            st.info(f"当前工作目录 / Current working folder: {os.path.basename(folder_path)}")
 
             try:
                 col1, col2 = st.columns(2)
                 with col1:
-                    if st.button(
-                        "📦 下载所有文件 / Download All Files", use_container_width=True
-                    ):
+                    if st.button("📦 下载所有文件 / Download All Files", use_container_width=True):
                         filter_and_zip_files(folder_path)
 
                 with col2:
-                    if st.button(
-                        "📄 仅下载MP4文件 / Download Only MP4", use_container_width=True
-                    ):
+                    if st.button("📄 仅下载MP4文件 / Download Only MP4", use_container_width=True):
                         filter_and_zip_files(folder_path, included_ext=[".mp4"])
 
             except Exception as e:
                 st.error(f"❌ 文件下载出错 / Error during file download: {e}")
         else:
-            st.warning(
-                "⚠️ 请先在视频处理页面选择工作目录 / Please select a working directory in the video processing tab first"
-            )
+            st.warning("⚠️ 请先在视频处理页面选择工作目录 / Please select a working directory in the video " "processing tab first")
 
 
 if __name__ == "__main__":

@@ -4,7 +4,6 @@ from typing import Any, Dict, Optional
 import streamlit as st
 import streamlit_authenticator as stauth
 import yaml
-from yaml.loader import SafeLoader
 
 
 def get_root_path() -> str:
@@ -112,8 +111,5 @@ def update_session_last_usage(log_message: str) -> None:
     Args:
         log_message: 日志消息
     """
-    if (
-        "last_log_line_usage" not in st.session_state
-        or st.session_state["last_log_line_usage"] != log_message
-    ):
+    if "last_log_line_usage" not in st.session_state or st.session_state["last_log_line_usage"] != log_message:
         st.session_state["last_log_line_usage"] = log_message

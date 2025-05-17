@@ -9,17 +9,12 @@ from src.core.helpers.analysis_helper import (
     create_and_start_analysis,
     fetch_last_lines_of_logs,
 )
-from src.core.helpers.download_utils import create_download_button, filter_and_zip_files
+from src.core.helpers.download_utils import filter_and_zip_files
 
 # 导入处理模块
-from src.core.processing.mouse_social_video_processing import (
-    process_mouse_social_video,
-    process_social_files,
-)
+from src.core.processing.mouse_social_video_processing import process_social_files
 from src.core.utils.file_utils import (
     create_folder_if_not_exists,
-    create_new_folder,
-    display_folder_contents,
     list_directories,
     select_video_files,
     upload_files,
@@ -36,12 +31,8 @@ def two_saver_page():
     web_log_file_path = os.path.join(get_root_path(), "logs", "usage.txt")
 
     models = {
-        "两鼠识别V1/Multi-Mice-test": os.path.join(
-            get_models_path(), "ABmodels/Multi-Mice-test-2024-02-26/config.yaml"
-        ),
-        "两鼠识别V2/Social-trial-1": os.path.join(
-            get_models_path(), "ABmodels/Social-trial-1-2024-03-09/config.yaml"
-        ),
+        "两鼠识别V1/Multi-Mice-test": os.path.join(get_models_path(), "ABmodels/Multi-Mice-test-2024-02-26/config.yaml"),
+        "两鼠识别V2/Social-trial-1": os.path.join(get_models_path(), "ABmodels/Social-trial-1-2024-03-09/config.yaml"),
     }
 
     # 添加自定义CSS样式
@@ -56,7 +47,7 @@ def two_saver_page():
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             margin-bottom: 2rem;
         }
-        
+
         /* 信息提示框 */
         .info-box {
             background-color: #e3f2fd;
@@ -65,7 +56,7 @@ def two_saver_page():
             border-left: 5px solid #2196F3;
             margin-bottom: 1.5rem;
         }
-        
+
         /* 文件列表 */
         .file-list {
             background-color: #f8f9fa;
@@ -73,7 +64,7 @@ def two_saver_page():
             border-radius: 0.5rem;
             margin: 1rem 0;
         }
-        
+
         /* 状态标签 */
         .status-label {
             display: inline-block;
@@ -83,24 +74,24 @@ def two_saver_page():
             font-weight: 500;
             margin: 0.2rem;
         }
-        
+
         .status-success {
             background-color: #e8f5e9;
             color: #2e7d32;
         }
-        
+
         .status-warning {
             background-color: #fff3e0;
             color: #ef6c00;
         }
-        
+
         /* 分隔线 */
         hr {
             margin: 2rem 0;
             border: none;
             border-top: 1px solid #e0e0e0;
         }
-        
+
         /* 标签页样式 */
         .stTabs {
             background-color: white;
@@ -108,7 +99,7 @@ def two_saver_page():
             border-radius: 0.5rem;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
-        
+
         /* 模型选择框 */
         .model-select {
             background-color: #f5f5f5;
@@ -116,7 +107,7 @@ def two_saver_page():
             border-radius: 0.5rem;
             margin: 1rem 0;
         }
-        
+
         /* 日志显示区域 */
         .log-display {
             font-family: monospace;
@@ -140,13 +131,13 @@ def two_saver_page():
         - 格式：MP4 / Format: MP4
         - 分辨率：512x512像素 / Resolution: 512x512 pixels
         - 帧率：30帧/秒 / Frame Rate: 30 fps
-        
+
         #### 实验要求 / Experiment Requirements:
         - 实验箱应为标准社交箱 / Standard social interaction box
         - 视频应包含两只小鼠的完整互动过程 / Video should cover the entire interaction process
         - 光照条件应均匀 / Even lighting conditions
         - 背景应保持稳定 / Stable background
-        
+
         #### 分析流程 / Analysis Process:
         1. 选择工作目录 / Choose working directory
         2. 上传视频文件 / Upload video files
@@ -154,11 +145,11 @@ def two_saver_page():
         4. 开始GPU分析 / Start GPU analysis
         5. 处理分析结果 / Process analysis results
         6. 下载结果文件 / Download result files
-        
+
         #### GPU使用提示 / GPU Usage Note:
-        - 如果GPU显存占用率很高，说明其他用户正在使用  
+        - 如果GPU显存占用率很高，说明其他用户正在使用
           If GPU memory usage is high, other users are currently using it
-        - 请等待GPU资源释放后再开始新的工作  
+        - 请等待GPU资源释放后再开始新的工作
           Please wait until GPU resources are available before starting new work
         """
         )
@@ -189,9 +180,7 @@ def two_saver_page():
         directories = list_directories(root_directory)
 
         if directories:
-            selected_directory = st.selectbox(
-                "📂 选择工作目录 / Choose a directory", directories
-            )
+            selected_directory = st.selectbox("📂 选择工作目录 / Choose a directory", directories)
             folder_path = os.path.join(root_directory, selected_directory)
             st.success(f"当前工作目录 / Current working folder: {folder_path}")
 
@@ -220,20 +209,12 @@ def two_saver_page():
 
             # 分析控制
             if high_memory_usage:
-                st.warning(
-                    "⚠️ GPU显存占用率高，请稍后再试 / High GPU memory usage detected. Please wait before starting analysis."
-                )
+                st.warning("⚠️ GPU显存占用率高，请稍后再试 / High GPU memory usage detected. Please wait before starting analysis.")
             else:
-                if st.button(
-                    "🚀 开始GPU分析 / Start GPU Analysis", use_container_width=True
-                ):
+                if st.button("🚀 开始GPU分析 / Start GPU Analysis", use_container_width=True):
                     try:
-                        with open(
-                            web_log_file_path, "a", encoding="utf-8"
-                        ) as web_log_file:
-                            web_log_file.write(
-                                f"\n{st.session_state['name']}, {current_time}\n"
-                            )
+                        with open(web_log_file_path, "a", encoding="utf-8") as web_log_file:
+                            web_log_file.write(f"\n{st.session_state['name']}, {current_time}\n")
                         create_and_start_analysis(
                             folder_path,
                             selected_files,
@@ -242,9 +223,7 @@ def two_saver_page():
                             current_time,
                             selected_gpus,
                         )
-                        st.success(
-                            "✅ 分析已开始！请查看日志了解进度 / Analysis started! Check logs for progress."
-                        )
+                        st.success("✅ 分析已开始！请查看日志了解进度 / Analysis started! Check logs for " "progress.")
                     except Exception as e:
                         st.error(f"❌ 分析启动失败 / Failed to start analysis: {e}")
 
@@ -264,16 +243,12 @@ def two_saver_page():
             st.info(f"当前工作目录 / Current working folder: {selected_directory}")
             st.info(f"当前使用的模型 / Current model: {selected_model_name}")
 
-            if st.button(
-                "⚡ 处理分析结果 / Process Analysis Results", use_container_width=True
-            ):
+            if st.button("⚡ 处理分析结果 / Process Analysis Results", use_container_width=True):
                 with st.spinner("处理中 / Processing..."):
                     process_social_files(folder_path)
                 st.success("✅ 结果处理完成 / Analysis results processed")
         else:
-            st.warning(
-                "⚠️ 请先在分析页面选择工作目录 / Please select a working directory in the analysis tab first"
-            )
+            st.warning("⚠️ 请先在分析页面选择工作目录 / Please select a working directory in the analysis tab first")
 
     with tab3:
         st.subheader("📥 结果下载 / Result Download")
@@ -284,9 +259,7 @@ def two_saver_page():
             try:
                 col1, col2, col3 = st.columns(3)
                 with col1:
-                    if st.button(
-                        "📦 下载所有文件 / Download All Files", use_container_width=True
-                    ):
+                    if st.button("📦 下载所有文件 / Download All Files", use_container_width=True):
                         filter_and_zip_files(folder_path)
 
                 with col2:
@@ -297,17 +270,13 @@ def two_saver_page():
                         filter_and_zip_files(folder_path, excluded_ext=[".mp4"])
 
                 with col3:
-                    if st.button(
-                        "📊 仅下载CSV文件 / Download Only CSV", use_container_width=True
-                    ):
+                    if st.button("📊 仅下载CSV文件 / Download Only CSV", use_container_width=True):
                         filter_and_zip_files(folder_path, included_ext=[".csv"])
 
             except Exception as e:
                 st.error(f"❌ 文件下载出错 / Error during file download: {e}")
         else:
-            st.warning(
-                "⚠️ 请先在分析页面选择工作目录 / Please select a working directory in the analysis tab first"
-            )
+            st.warning("⚠️ 请先在分析页面选择工作目录 / Please select a working directory in the analysis tab first")
 
 
 if __name__ == "__main__":

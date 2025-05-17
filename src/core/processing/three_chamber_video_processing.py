@@ -40,12 +40,7 @@ def process_mouse_tc_video(file_path, folder_path, confidence_threshold=0.9):
 
         # 速度过滤和插值设置
         for i in range(1, total_frames):
-            if (
-                not np.isnan(x[i - 1])
-                and not np.isnan(x[i])
-                and not np.isnan(y[i - 1])
-                and not np.isnan(y[i])
-            ):
+            if not np.isnan(x[i - 1]) and not np.isnan(x[i]) and not np.isnan(y[i - 1]) and not np.isnan(y[i]):
                 dx = x[i] - x[i - 1]
                 dy = y[i] - y[i - 1]
                 speed = np.sqrt(dx**2 + dy**2) * frame_rate
@@ -93,10 +88,7 @@ def process_mouse_tc_video(file_path, folder_path, confidence_threshold=0.9):
 
             # 计算在各区域的时间（秒）
             time_up = np.sum(segment_y < y_boundaries[0]) / frame_rate
-            time_middle = (
-                np.sum((segment_y >= y_boundaries[0]) & (segment_y < y_boundaries[1]))
-                / frame_rate
-            )
+            time_middle = np.sum((segment_y >= y_boundaries[0]) & (segment_y < y_boundaries[1])) / frame_rate
             time_bottom = np.sum(segment_y >= y_boundaries[1]) / frame_rate
 
             # 计算在各区域的移动距离
@@ -105,12 +97,7 @@ def process_mouse_tc_video(file_path, folder_path, confidence_threshold=0.9):
             distances = np.sqrt(dx**2 + dy**2)
 
             dist_up = np.sum(distances[segment_y[:-1] < y_boundaries[0]])
-            dist_middle = np.sum(
-                distances[
-                    (segment_y[:-1] >= y_boundaries[0])
-                    & (segment_y[:-1] < y_boundaries[1])
-                ]
-            )
+            dist_middle = np.sum(distances[(segment_y[:-1] >= y_boundaries[0]) & (segment_y[:-1] < y_boundaries[1])])
             dist_bottom = np.sum(distances[segment_y[:-1] >= y_boundaries[1]])
 
             segment_data.append(
@@ -154,14 +141,10 @@ def process_mouse_tc_video(file_path, folder_path, confidence_threshold=0.9):
         # 计算并保存总体数据
         total_data = {
             "总时长 / Total Duration (s)": total_frames / frame_rate,
-            "上区域总时间 / Total Upper Time (s)": np.sum(y_smoothed < y_boundaries[0])
+            "上区域总时间 / Total Upper Time (s)": np.sum(y_smoothed < y_boundaries[0]) / frame_rate,
+            "中区域总时间 / Total Middle Time (s)": np.sum((y_smoothed >= y_boundaries[0]) & (y_smoothed < y_boundaries[1]))
             / frame_rate,
-            "中区域总时间 / Total Middle Time (s)": np.sum(
-                (y_smoothed >= y_boundaries[0]) & (y_smoothed < y_boundaries[1])
-            )
-            / frame_rate,
-            "下区域总时间 / Total Lower Time (s)": np.sum(y_smoothed >= y_boundaries[1])
-            / frame_rate,
+            "下区域总时间 / Total Lower Time (s)": np.sum(y_smoothed >= y_boundaries[1]) / frame_rate,
         }
         pd.DataFrame([total_data]).to_csv(total_file_path, index=False)
 
@@ -183,11 +166,7 @@ def process_tc_files(folder_path, confidence_threshold=0.9):
     """
     try:
         # 查找所有以"00000.csv"结尾的文件
-        file_paths = [
-            os.path.join(folder_path, f)
-            for f in os.listdir(folder_path)
-            if f.endswith("00000.csv")
-        ]
+        file_paths = [os.path.join(folder_path, f) for f in os.listdir(folder_path) if f.endswith("00000.csv")]
 
         if not file_paths:
             st.warning("未找到分析结果文件 / No analysis result files found")
@@ -196,17 +175,13 @@ def process_tc_files(folder_path, confidence_threshold=0.9):
         # 处理每个文件
         processed_files_list = []
         for file_path in file_paths:
-            result = process_mouse_tc_video(
-                file_path, folder_path, confidence_threshold
-            )
+            result = process_mouse_tc_video(file_path, folder_path, confidence_threshold)
             if result:
                 processed_files_list.append(result)
 
         # 显示处理结果
         if processed_files_list:
-            st.success(
-                f"✅ 成功处理 {len(processed_files_list)} 个文件 / Successfully processed {len(processed_files_list)} files"
-            )
+            st.success(f"✅ 成功处理 {len(processed_files_list)} 个文件 / " f"Successfully processed {len(processed_files_list)} files")
             for result in processed_files_list:
                 st.write(result)
         else:

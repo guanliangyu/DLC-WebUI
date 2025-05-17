@@ -25,9 +25,7 @@ def display_gpu_usage():
 
         with col2:
             memory_util = gpu.memoryUtil
-            st.markdown(
-                f"**显存使用 / Memory Usage**: {gpu.memoryUsed}MB / {gpu.memoryTotal}MB"
-            )
+            st.markdown(f"**显存使用 / Memory Usage**: {gpu.memoryUsed}MB / {gpu.memoryTotal}MB")
             st.progress(memory_util)
             st.text(f"显存占用率 / Memory Utilization: {memory_util*100:.1f}%")
 

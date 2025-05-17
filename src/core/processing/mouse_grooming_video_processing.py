@@ -4,7 +4,6 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 from scipy.interpolate import interp1d
-from scipy.ndimage import gaussian_filter
 
 
 def process_mouse_grooming_video(file_path, folder_path, paw_probability_threshold=0.8):
@@ -64,23 +63,20 @@ def process_mouse_grooming_video(file_path, folder_path, paw_probability_thresho
 
             displacement_vectors = np.stack([dx, dy], axis=1)
             scalar_products = [
-                (
-                    np.dot(displacement_vectors[i], displacement_vectors[i - 1])
-                    if i > 0
-                    else 0
-                )
-                for i in range(total_frames)
+                (np.dot(displacement_vectors[i], displacement_vectors[i - 1]) if i > 0 else 0) for i in range(total_frames)
             ]
 
             return displacement_vectors, scalar_products
 
         # 计算左右耳的位移和标量积
-        left_ear_displacement, left_ear_scalar_products = (
-            calculate_displacement_and_scalar_product(data, "Leftear")
-        )
-        right_ear_displacement, right_ear_scalar_products = (
-            calculate_displacement_and_scalar_product(data, "Rightear")
-        )
+        (
+            left_ear_displacement,
+            left_ear_scalar_products,
+        ) = calculate_displacement_and_scalar_product(data, "Leftear")
+        (
+            right_ear_displacement,
+            right_ear_scalar_products,
+        ) = calculate_displacement_and_scalar_product(data, "Rightear")
 
         # 将时间、位移向量和标量积组合成DataFrame
         scalar_data_with_time = pd.DataFrame(
@@ -111,8 +107,7 @@ def process_mouse_grooming_video(file_path, folder_path, paw_probability_thresho
                 for start_min in np.arange(0, max_time, interval_minutes):
                     end_min = start_min + interval_minutes
                     interval_data = scalar_data_with_time[
-                        (scalar_data_with_time["Time (min)"] >= start_min)
-                        & (scalar_data_with_time["Time (min)"] < end_min)
+                        (scalar_data_with_time["Time (min)"] >= start_min) & (scalar_data_with_time["Time (min)"] < end_min)
                     ]
                     left_count = interval_data[
                         (interval_data["LeftEarScalarProduct"] >= range_min)
@@ -128,9 +123,7 @@ def process_mouse_grooming_video(file_path, folder_path, paw_probability_thresho
                     if apply_filter and total_count < 15:
                         left_count, right_count, total_count = 0, 0, 0
 
-                    interval_counts.append(
-                        [start_min, end_min, left_count, right_count, total_count]
-                    )
+                    interval_counts.append([start_min, end_min, left_count, right_count, total_count])
                 return pd.DataFrame(
                     interval_counts,
                     columns=[
@@ -146,52 +139,36 @@ def process_mouse_grooming_video(file_path, folder_path, paw_probability_thresho
             output_path_suffix = f"_{interval_minutes*10}min"
             if apply_filter:
                 output_path_suffix += "-filter"
-            output_path = os.path.join(
-                folder_path, f"{output_base_name}{output_path_suffix}.csv"
-            )
+            output_path = os.path.join(folder_path, f"{output_base_name}{output_path_suffix}.csv")
             counts.to_csv(output_path, index=False)
             return counts
 
         # 执行0.1分钟间隔的分析
-        _0_1min_counts = analyze_intervals(base_name, 0.1)
+        analyze_intervals(base_name, 0.1)
 
         # 执行带过滤的0.1分钟间隔分析
         _0_1min_filtered_counts = analyze_intervals(base_name, 0.1, apply_filter=True)
 
         # 将过滤后的0.1分钟间隔计数聚合成5分钟间隔
         def aggregate_into_5min_intervals(filtered_counts):
-            filtered_counts["5Min Interval"] = (
-                filtered_counts["Start Min"] // 5
-            ).astype(int)
-            aggregated_counts = (
-                filtered_counts.groupby("5Min Interval")["Total Count"]
-                .sum()
-                .reset_index()
-            )
+            filtered_counts["5Min Interval"] = (filtered_counts["Start Min"] // 5).astype(int)
+            aggregated_counts = filtered_counts.groupby("5Min Interval")["Total Count"].sum().reset_index()
             aggregated_counts["Start Min"] = aggregated_counts["5Min Interval"] * 5
             aggregated_counts["End Min"] = (aggregated_counts["5Min Interval"] + 1) * 5
             return aggregated_counts[["Start Min", "End Min", "Total Count"]]
 
         _5min_aggregated_counts = aggregate_into_5min_intervals(_0_1min_filtered_counts)
-        _5min_aggregated_output_path = os.path.join(
-            folder_path, f"{base_name}_5min_aggregated.csv"
-        )
+        _5min_aggregated_output_path = os.path.join(folder_path, f"{base_name}_5min_aggregated.csv")
         _5min_aggregated_counts.to_csv(_5min_aggregated_output_path, index=False)
 
         # 计算计数非零的总有效时间
         total_effective_time = (
-            _0_1min_filtered_counts[_0_1min_filtered_counts["Total Count"] > 0][
-                "End Min"
-            ].sum()
-            - _0_1min_filtered_counts[_0_1min_filtered_counts["Total Count"] > 0][
-                "Start Min"
-            ].sum()
+            _0_1min_filtered_counts[_0_1min_filtered_counts["Total Count"] > 0]["End Min"].sum()
+            - _0_1min_filtered_counts[_0_1min_filtered_counts["Total Count"] > 0]["Start Min"].sum()
         )
 
         # 保存总有效时间到CSV文件
-        total_time_output_path = os.path.join(
-            folder_path, f"{base_name}_total_effective_time.csv"
-        )
+        total_time_output_path = os.path.join(folder_path, f"{base_name}_total_effective_time.csv")
         with open(total_time_output_path, "w") as f:
             f.write(f"Total Effective Time (min): {total_effective_time}")
 
@@ -203,9 +180,7 @@ def process_mouse_grooming_video(file_path, folder_path, paw_probability_thresho
         return None
 
 
-def process_grooming_files(
-    folder_path, paw_probability_threshold=0.8, min_distance=10, max_distance=25
-):
+def process_grooming_files(folder_path, paw_probability_threshold=0.8, min_distance=10, max_distance=25):
     """处理文件夹中的所有理毛视频分析结果
     Process all grooming video analysis results in the folder
 
@@ -217,11 +192,7 @@ def process_grooming_files(
     """
     try:
         # 查找所有以"00000.csv"结尾的文件
-        file_paths = [
-            os.path.join(folder_path, f)
-            for f in os.listdir(folder_path)
-            if f.endswith("00000.csv")
-        ]
+        file_paths = [os.path.join(folder_path, f) for f in os.listdir(folder_path) if f.endswith("00000.csv")]
 
         if not file_paths:
             st.warning("未找到分析结果文件 / No analysis result files found")
@@ -230,17 +201,13 @@ def process_grooming_files(
         # 处理每个文件
         processed_files_list = []
         for file_path in file_paths:
-            result = process_mouse_grooming_video(
-                file_path, folder_path, paw_probability_threshold
-            )
+            result = process_mouse_grooming_video(file_path, folder_path, paw_probability_threshold)
             if result:
                 processed_files_list.append(result)
 
         # 显示处理结果
         if processed_files_list:
-            st.success(
-                f"✅ 成功处理 {len(processed_files_list)} 个文件 / Successfully processed {len(processed_files_list)} files"
-            )
+            st.success(f"✅ 成功处理 {len(processed_files_list)} 个文件 / " f"Successfully processed {len(processed_files_list)} files")
             for result in processed_files_list:
                 st.write(result)
         else:

@@ -1,5 +1,5 @@
 ﻿import os
-from typing import Dict, Optional
+from typing import Dict
 
 import streamlit as st
 
@@ -26,9 +26,7 @@ def display_logs(folder_path: str, num_lines: int = 20) -> None:
                     with open(log_path, "r", encoding="utf-8") as f:
                         lines = f.readlines()
                         if lines:
-                            last_lines = (
-                                lines[-num_lines:] if len(lines) > num_lines else lines
-                            )
+                            last_lines = lines[-num_lines:] if len(lines) > num_lines else lines
                             st.code("".join(last_lines))
                         else:
                             st.info("日志文件为空 / Log file is empty")
@@ -58,9 +56,7 @@ def get_last_log_entries(folder_path: str, num_lines: int = 20) -> Dict[str, str
                 try:
                     with open(file_path, "r", encoding="utf-8") as f:
                         lines = f.readlines()
-                        last_lines = (
-                            lines[-num_lines:] if len(lines) > num_lines else lines
-                        )
+                        last_lines = lines[-num_lines:] if len(lines) > num_lines else lines
                         log_contents[file] = "".join(last_lines)
                 except Exception as e:
                     log_contents[file] = f"Error reading log file: {str(e)}"

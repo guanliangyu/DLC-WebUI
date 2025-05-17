@@ -8,9 +8,9 @@ from src.core.config import get_root_path
 def render_user_info() -> None:
     """显示用户信息"""
     st.markdown('<div class="user-info">', unsafe_allow_html=True)
-    st.markdown(f"### 👤 用户信息 / User Info")
+    st.markdown("### 👤 用户信息 / User Info")
     st.write(f"欢迎 / Welcome: {st.session_state['name']}")
-    st.write(f"上次操作 / Last operation:")
+    st.write("上次操作 / Last operation:")
 
     # 读取最后的使用记录
     log_file_path = os.path.join(get_root_path(), "logs", "usage.txt")
@@ -35,9 +35,7 @@ def render_sidebar() -> None:
             st.markdown('<div class="sidebar-divider"></div>', unsafe_allow_html=True)
 
         # 主页导航
-        st.markdown(
-            '<div class="sidebar-title">🏠 主页 / Home</div>', unsafe_allow_html=True
-        )
+        st.markdown('<div class="sidebar-title">🏠 主页 / Home</div>', unsafe_allow_html=True)
         if st.button("🏠 主页 / Home"):
             st.switch_page("Home.py")
         st.markdown('<div class="sidebar-divider"></div>', unsafe_allow_html=True)

@@ -4,24 +4,16 @@ import subprocess
 import streamlit as st
 
 
-def create_and_start_analysis(
-    folder_path, selected_files, config_path, gpu_count, current_time, use_gpus=None
-):
+def create_and_start_analysis(folder_path, selected_files, config_path, gpu_count, current_time, use_gpus=None):
     if use_gpus is None:
         use_gpus = list(range(gpu_count))  # Use all GPUs by default
 
-    st.write(
-        f"Debug: {len(selected_files)} files for {len(use_gpus)} GPUs"
-    )  # Debug output to check the counts
+    st.write(f"Debug: {len(selected_files)} files for {len(use_gpus)} GPUs")  # Debug output to check the counts
 
     # Check if there are more GPUs than files, and issue a warning if necessary
     if len(selected_files) < len(use_gpus):
-        st.warning(
-            "Not enough files for the number of GPUs. Some GPUs will not be used."
-        )
-        use_gpus = use_gpus[
-            : len(selected_files)
-        ]  # Reduce the number of GPUs to the number of files
+        st.warning("Not enough files for the number of GPUs. Some GPUs will not be used.")
+        use_gpus = use_gpus[: len(selected_files)]  # Reduce the number of GPUs to the number of files
 
     files_per_gpu = len(selected_files) // len(use_gpus)
     remaining_files = len(selected_files) % len(use_gpus)
@@ -39,16 +31,16 @@ def create_and_start_analysis(
             continue
         gpu_index = use_gpus[group_num]
         run_py_path_group = os.path.join(folder_path, f"run_gpu{gpu_index}.py")
-        start_script_path_group = os.path.join(
-            folder_path, f"start_analysis_gpu{gpu_index}.py"
-        )
+        start_script_path_group = os.path.join(folder_path, f"start_analysis_gpu{gpu_index}.py")
         log_file_path = os.path.join(folder_path, f"output_gpu{gpu_index}.log")
 
         # Create run.py content
-        analyze_videos_code = f"deeplabcut.analyze_videos('{config_path}', {files_group}, videotype='mp4', shuffle=1, trainingsetindex=0, gputouse={gpu_index}, save_as_csv=True)"
-        create_labeled_video_code = (
-            f"deeplabcut.create_labeled_video('{config_path}', {files_group})"
+        analyze_videos_code = (
+            f"deeplabcut.analyze_videos('{config_path}', {files_group}, "
+            f"videotype='mp4', shuffle=1, trainingsetindex=0, "
+            f"gputouse={gpu_index}, save_as_csv=True)"
         )
+        create_labeled_video_code = f"deeplabcut.create_labeled_video('{config_path}', {files_group})"
 
         content = f"""
 import deeplabcut
@@ -76,9 +68,7 @@ subprocess.run(['python', '{run_py_path_group}'], check=True)
                 stdout=log_file,
                 stderr=subprocess.STDOUT,
             )
-            processes.append(
-                (process, gpu_index)
-            )  # Append tuple of process and GPU index
+            processes.append((process, gpu_index))  # Append tuple of process and GPU index
 
     # Optionally wait for all processes to complete after starting all
     for process, gpu_index in processes:
@@ -90,9 +80,7 @@ subprocess.run(['python', '{run_py_path_group}'], check=True)
     general_log_file_path = os.path.join(folder_path, "general_log.txt")
     with open(general_log_file_path, "a") as general_log_file:
         for _, gpu_index in processes:
-            general_log_file.write(
-                f"{current_time} Analysis started on GPU{gpu_index}\n"
-            )
+            general_log_file.write(f"{current_time} Analysis started on GPU{gpu_index}\n")
 
 
 def fetch_last_lines_of_logs(folder_path, gpu_count):

@@ -42,12 +42,8 @@ def show():
 
     # 设置模型
     models = {
-        "ICR-DJ-CPP-V2": os.path.join(
-            get_models_path(), "ABmodels/DJ-cpp-500px-narrow-2024-05-13/config.yaml"
-        ),
-        "C57-DJ-CPP-V2": os.path.join(
-            get_models_path(), "ABmodels/C57-CPP-T2-2024-05-15/config.yaml"
-        ),
+        "ICR-DJ-CPP-V2": os.path.join(get_models_path(), "ABmodels/DJ-cpp-500px-narrow-2024-05-13/config.yaml"),
+        "C57-DJ-CPP-V2": os.path.join(get_models_path(), "ABmodels/C57-CPP-T2-2024-05-15/config.yaml"),
     }
 
     tab1, tab2, tab3 = st.tabs(
@@ -78,20 +74,12 @@ def show():
 
             # 分析控制
             if high_memory_usage:
-                st.warning(
-                    "⚠️ GPU显存占用率高，请稍后再试 / High GPU memory usage detected. Please wait before starting analysis."
-                )
+                st.warning("⚠️ GPU显存占用率高，请稍后再试 / High GPU memory usage detected. Please wait before starting analysis.")
             else:
-                if st.button(
-                    "🚀 开始GPU分析 / Start GPU Analysis", use_container_width=True
-                ):
+                if st.button("🚀 开始GPU分析 / Start GPU Analysis", use_container_width=True):
                     try:
-                        with open(
-                            web_log_file_path, "a", encoding="utf-8"
-                        ) as web_log_file:
-                            web_log_file.write(
-                                f"\n{st.session_state['name']}, {current_time}\n"
-                            )
+                        with open(web_log_file_path, "a", encoding="utf-8") as web_log_file:
+                            web_log_file.write(f"\n{st.session_state['name']}, {current_time}\n")
                         create_and_start_analysis(
                             folder_path,
                             selected_files,
@@ -100,9 +88,7 @@ def show():
                             current_time,
                             selected_gpus,
                         )
-                        st.success(
-                            "✅ 分析已开始！请查看日志了解进度 / Analysis started! Check logs for progress."
-                        )
+                        st.success("✅ 分析已开始！请查看日志了解进度 / Analysis started! Check logs for " "progress.")
                     except Exception as e:
                         st.error(f"❌ 分析启动失败 / Failed to start analysis: {e}")
 
@@ -117,40 +103,30 @@ def show():
     with tab2:
         st.subheader("🔄 结果处理 / Result Processing")
         if folder_path:
+            st.info(f"当前工作目录 / Current working folder: {os.path.basename(folder_path)}")
             st.info(
-                f"当前工作目录 / Current working folder: {os.path.basename(folder_path)}"
-            )
-            st.info(
-                f"当前使用的模型 / Current model: {selected_model_name if 'selected_model_name' in locals() else 'Not selected'}"
+                f"当前使用的模型 / Current model: " f"{selected_model_name if 'selected_model_name' in locals() else 'Not selected'}"
             )
 
-            if st.button(
-                "⚡ 处理分析结果 / Process Analysis Results", use_container_width=True
-            ):
+            if st.button("⚡ 处理分析结果 / Process Analysis Results", use_container_width=True):
                 with st.spinner("处理中 / Processing..."):
                     process_cpp_files(folder_path, 0.999, 15, 35)
                 st.success("✅ 结果处理完成 / Analysis results processed")
         else:
-            st.warning(
-                "⚠️ 请先在分析页面选择工作目录 / Please select a working directory in the analysis tab first"
-            )
+            st.warning("⚠️ 请先在分析页面选择工作目录 / Please select a working directory in the analysis tab first")
 
     with tab3:
         st.subheader("📥 结果下载 / Result Download")
         if folder_path:
+            st.info(f"当前工作目录 / Current working folder: {os.path.basename(folder_path)}")
             st.info(
-                f"当前工作目录 / Current working folder: {os.path.basename(folder_path)}"
-            )
-            st.info(
-                f"当前使用的模型 / Current model: {selected_model_name if 'selected_model_name' in locals() else 'Not selected'}"
+                f"当前使用的模型 / Current model: " f"{selected_model_name if 'selected_model_name' in locals() else 'Not selected'}"
             )
 
             try:
                 col1, col2, col3 = st.columns(3)
                 with col1:
-                    if st.button(
-                        "📦 下载所有文件 / Download All Files", use_container_width=True
-                    ):
+                    if st.button("📦 下载所有文件 / Download All Files", use_container_width=True):
                         filter_and_zip_files(folder_path)
 
                 with col2:
@@ -161,17 +137,13 @@ def show():
                         filter_and_zip_files(folder_path, excluded_ext=[".mp4"])
 
                 with col3:
-                    if st.button(
-                        "📊 仅下载CSV文件 / Download Only CSV", use_container_width=True
-                    ):
+                    if st.button("📊 仅下载CSV文件 / Download Only CSV", use_container_width=True):
                         filter_and_zip_files(folder_path, included_ext=[".csv"])
 
             except Exception as e:
                 st.error(f"❌ 文件下载出错 / Error during file download: {e}")
         else:
-            st.warning(
-                "⚠️ 请先在分析页面选择工作目录 / Please select a working directory in the analysis tab first"
-            )
+            st.warning("⚠️ 请先在分析页面选择工作目录 / Please select a working directory in the analysis tab first")
 
 
 if __name__ == "__main__":
