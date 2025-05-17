@@ -3,11 +3,16 @@ import os
 import shutil
 import tempfile
 import zipfile
+from typing import Iterable, Optional, Union
 
 import streamlit as st
 
 
-def create_download_button(directory, pattern="*", key=None):
+def create_download_button(
+    directory: str,
+    pattern: Union[Iterable[str], str] = "*",
+    key: Optional[str] = None,
+) -> None:
     """Creates a download button for files in a specified directory matching the pattern."""
     with tempfile.TemporaryDirectory() as tmpdirname:
         # Simplify the zip filename to avoid long names
@@ -19,14 +24,15 @@ def create_download_button(directory, pattern="*", key=None):
             ]  # Get first 10 characters of the hash
             zip_filename = f"files_{hex_dig}.zip"
         else:
-            pattern_clean = pattern.replace("*", "all").replace(".", "")
+            pattern_str = str(pattern)
+            pattern_clean = pattern_str.replace("*", "all").replace(".", "")
             zip_filename = f"{pattern_clean}_files.zip"
 
         zip_path = os.path.join(tmpdirname, zip_filename)
 
         # Define the function to check file inclusion based on extensions
-        def include_file(file):
-            if isinstance(pattern, list):
+        def include_file(file: str) -> bool:
+            if isinstance(pattern, Iterable) and not isinstance(pattern, str):
                 return any(file.endswith(ext) for ext in pattern)
             return True if pattern == "*" else file.endswith(pattern)
 
@@ -51,7 +57,11 @@ def create_download_button(directory, pattern="*", key=None):
 
 
 # Example usage in a Streamlit app
-def filter_and_zip_files(directory, excluded_ext=None, included_ext=None):
+def filter_and_zip_files(
+    directory: str,
+    excluded_ext: Optional[Iterable[str]] = None,
+    included_ext: Optional[Iterable[str]] = None,
+) -> None:
     """Utility to create zip for specific file types."""
     pattern = included_ext if included_ext else "*"
     if excluded_ext:

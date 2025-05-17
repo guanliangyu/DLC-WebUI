@@ -1,12 +1,18 @@
 import os
 import subprocess
+from typing import Dict, List, Optional
 
 import streamlit as st
 
 
 def create_and_start_analysis(
-    folder_path, selected_files, config_path, gpu_count, current_time, use_gpus=None
-):
+    folder_path: str,
+    selected_files: List[str],
+    config_path: str,
+    gpu_count: int,
+    current_time: str,
+    use_gpus: Optional[List[int]] = None,
+) -> None:
     if use_gpus is None:
         use_gpus = list(range(gpu_count))  # Use all GPUs by default
 
@@ -95,7 +101,10 @@ subprocess.run(['python', '{run_py_path_group}'], check=True)
             )
 
 
-def fetch_last_lines_of_logs(folder_path, gpu_count):
+from typing import Dict
+
+
+def fetch_last_lines_of_logs(folder_path: str, gpu_count: int) -> Dict[str, str]:
     last_lines = {}
     for group_num in range(gpu_count):
         log_file_path = os.path.join(folder_path, f"output_gpu{group_num}.log")

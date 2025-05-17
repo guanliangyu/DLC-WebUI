@@ -5,7 +5,7 @@ import streamlit as st
 from src.core.config import get_root_path
 
 
-def load_custom_css():
+def load_custom_css() -> None:
     """加载自定义CSS样式 / Load custom CSS styles"""
     st.markdown(
         """
@@ -80,7 +80,7 @@ def load_custom_css():
     )
 
 
-def add_navigation_and_user_info():
+def add_navigation_and_user_info() -> None:
     """添加导航栏和用户信息 / Add navigation and user info"""
     with st.sidebar:
         st.markdown(

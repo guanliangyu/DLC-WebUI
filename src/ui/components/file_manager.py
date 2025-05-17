@@ -8,9 +8,10 @@ from src.core.utils.file_utils import (
     select_video_files,
     upload_files,
 )
+from typing import List, Optional, Tuple
 
 
-def setup_working_directory(root_directory: str):
+def setup_working_directory(root_directory: str) -> Tuple[Optional[str], Optional[List[str]]]:
     """设置工作目录并处理文件上传
     Setup working directory and handle file uploads
 

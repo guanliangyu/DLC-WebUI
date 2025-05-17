@@ -2,7 +2,7 @@ import GPUtil
 import streamlit as st
 
 
-def display_gpu_usage():
+def display_gpu_usage() -> bool:
     """
     显示GPU使用情况，并返回是否有高内存使用的标志
     Display GPU usage and return a flag indicating high memory usage

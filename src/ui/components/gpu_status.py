@@ -4,7 +4,10 @@ from src.core.utils.gpu_selector import setup_gpu_selection
 from src.core.utils.gpu_utils import display_gpu_usage
 
 
-def show_gpu_status():
+from typing import List, Tuple
+
+
+def show_gpu_status() -> Tuple[bool, int, List[int]]:
     """显示GPU状态和选择器 / Display GPU status and selector"""
     st.subheader("🖥️ GPU 状态 / GPU Status")
     high_memory_usage = display_gpu_usage()

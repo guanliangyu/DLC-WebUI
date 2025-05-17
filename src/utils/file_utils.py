@@ -1,9 +1,10 @@
 import os
+from typing import List, Dict
 
 import streamlit as st
 
 
-def create_new_folder(folder_path):
+def create_new_folder(folder_path: str) -> None:
     try:
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
@@ -14,7 +15,7 @@ def create_new_folder(folder_path):
         st.error(f"Error creating folder: {e}")
 
 
-def upload_files(folder_path):
+def upload_files(folder_path: str) -> None:
     """
     Handles the upload of files to the specified directory and saves them without any additional processing.
     """
@@ -32,7 +33,7 @@ def upload_files(folder_path):
                 st.info(f'File "{uploaded_file.name}" already exists.')
 
 
-def list_directories(root_directory):
+def list_directories(root_directory: str) -> List[str]:
     try:
         directories = [
             d
@@ -45,13 +46,13 @@ def list_directories(root_directory):
     return directories
 
 
-def display_folder_contents(folder_path, selected_files):
+def display_folder_contents(folder_path: str, selected_files: List[str]) -> None:
     """
     Displays the contents of the specified folder, sorted by file extension and then by filename.
     Marks the files that have been selected.
     """
     files = os.listdir(folder_path)
-    files_dict = {}
+    files_dict: Dict[str, List[str]] = {}
 
     # Group files by extension
     for file in files:
@@ -75,7 +76,7 @@ def display_folder_contents(folder_path, selected_files):
                 st.write(file)
 
 
-def create_folder_if_not_exists(folder_path):
+def create_folder_if_not_exists(folder_path: str) -> None:
     """
     Checks if the specified folder exists and creates it if it does not.
     Provides user feedback through Streamlit about the status of the folder.
@@ -91,7 +92,7 @@ def create_folder_if_not_exists(folder_path):
             st.error(f"Error creating folder: {e}")
 
 
-def select_video_files(folder_path):
+def select_video_files(folder_path: str) -> List[str]:
     """
     Displays a multi-select widget with video files sorted by name for user to select for processing.
     """
@@ -103,7 +104,7 @@ def select_video_files(folder_path):
     return [os.path.join(folder_path, f) for f in selected_files]
 
 
-def select_python_files(folder_path):
+def select_python_files(folder_path: str) -> List[str]:
     """
     Display a multiselect widget to let the user choose Python script files from a specified directory.
 

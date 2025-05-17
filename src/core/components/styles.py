@@ -1,7 +1,10 @@
 import streamlit as st
 
 
-def load_css_styles():
+import streamlit as st
+
+
+def load_css_styles() -> None:
     """加载共享的CSS样式"""
     st.markdown(
         """

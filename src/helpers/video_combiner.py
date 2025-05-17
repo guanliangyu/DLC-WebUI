@@ -1,7 +1,10 @@
 import os
+from typing import List
 
 
-def create_video_combination_script(folder_path, selected_files, output_directory):
+def create_video_combination_script(
+    folder_path: str, selected_files: List[str], output_directory: str
+) -> str:
     """Creates a Python script to combine selected video files using ffmpeg."""
     if not selected_files:
         raise ValueError("No files provided for combination.")
@@ -47,10 +50,11 @@ def create_video_combination_script(folder_path, selected_files, output_director
 
 if __name__ == "__main__":
     # Example usage: Run this module directly to test the combination script creation.
+    folder_path = "/home/Public/DLC-Web/Scratch/video_prepare/2024-05-28"
     selected_files = [
-        "/home/Public/DLC-Web/Scratch/video_prepare/2024-05-28/red-1.MP4",
-        "/home/Public/DLC-Web/Scratch/video_prepare/2024-05-28/red-2.MP4",
-        "/home/Public/DLC-Web/Scratch/video_prepare/2024-05-28/red-3.MP4",
+        f"{folder_path}/red-1.MP4",
+        f"{folder_path}/red-2.MP4",
+        f"{folder_path}/red-3.MP4",
     ]
-    output_directory = "/home/Public/DLC-Web/Scratch/video_prepare/2024-05-28"
-    create_video_combination_script(selected_files, output_directory)
+    output_directory = folder_path
+    create_video_combination_script(folder_path, selected_files, output_directory)

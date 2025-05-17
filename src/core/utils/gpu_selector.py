@@ -2,7 +2,10 @@ import GPUtil
 import streamlit as st
 
 
-def setup_gpu_selection():
+from typing import List, Tuple
+
+
+def setup_gpu_selection() -> Tuple[int, List[int]]:
     """
     设置GPU选择界面，返回GPU数量和选择的GPU列表
     Set up GPU selection interface, return GPU count and selected GPU list
