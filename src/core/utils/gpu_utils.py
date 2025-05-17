@@ -10,7 +10,7 @@ def display_gpu_usage():
     high_memory_usage = False
     
     if not gpus:
-        st.warning("⚠️ 未检测到GPU / No GPU detected")
+        st.warning("⚠ 未检测到GPU / No GPUs detected")
         return False
         
     for gpu in gpus:
