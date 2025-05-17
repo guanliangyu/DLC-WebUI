@@ -3,13 +3,16 @@
 ## 1. 系统要求 / System Requirements
 - NVIDIA GPU (建议8GB以上显存)
 - Windows 10/11 或 Linux
-- Python 3.8+
-- CUDA 11.7+
+- Python 3.8
+- CUDA 11.8 (通过 Conda 安装 / Installed via Conda)
 
 ## 2. 启动应用 / Launch Application
+确保您已按照 [安装指南](installation.md) 完成环境配置并激活 `dlc-webui-env` 环境。
+Ensure you have completed the environment setup according to the [Installation Guide](installation.md) and activated the `dlc-webui-env` environment.
+
 ```bash
-# 启动应用
-streamlit run app.py
+# 启动应用 / Launch application
+streamlit run Home.py
 ```
 
 ## 3. 基本使用流程 / Basic Usage Flow

@@ -25,8 +25,8 @@
 
 - NVIDIA GPU (建议8GB以上显存 / 8GB+ VRAM recommended)
 - Windows 10/11 或 Linux
-- Python 3.8+
-- CUDA 11.7+
+- Python 3.8
+- CUDA 11.8 (通过 Conda 安装 / Installed via Conda)
 - 8GB+ 系统内存 / System Memory
 - 50GB+ 可用硬盘空间 / Available Disk Space
 
@@ -34,12 +34,34 @@
 
 ### 1. 安装 / Installation
 
+**推荐方法: 使用 environment.yml (Recommended: Using environment.yml)**
 ```bash
 # 克隆仓库 / Clone repository
-git clone https://github.com/your-username/DLC-WebUI.git
+git clone https://github.com/guanliangyu/DLC-WebUI.git
 cd DLC-WebUI
 
-# 安装依赖 / Install dependencies
+# 使用 environment.yml 创建并激活 Conda 环境
+# Create and activate Conda environment using environment.yml
+conda env create -f environment.yml
+conda activate dlc-webui-env
+```
+
+**备选方法: 手动设置 (Alternative: Manual Setup)**
+```bash
+# 克隆仓库 / Clone repository
+git clone https://github.com/guanliangyu/DLC-WebUI.git
+cd DLC-WebUI
+
+# 创建并激活 Conda 环境 / Create and activate Conda environment
+conda create -n dlc-webui-env python=3.8 -y
+conda activate dlc-webui-env
+
+# 安装 CUDA Toolkit / Install CUDA Toolkit
+# (请根据您的系统和偏好选择合适的频道，conda-forge 通常是一个好的选择)
+# (Choose the appropriate channel for your system, conda-forge is often a good choice)
+conda install cudatoolkit=11.8 -c conda-forge -y 
+
+# 安装其余依赖 / Install remaining dependencies
 pip install -r requirements.txt
 ```
 
@@ -47,7 +69,7 @@ pip install -r requirements.txt
 
 ```bash
 # 启动Web界面 / Start web interface
-streamlit run app.py
+streamlit run Home.py
 ```
 
 ### 3. 使用流程 / Usage Flow

@@ -42,19 +42,18 @@
 
 ## 开发设置 / Development Setup
 
+建议使用 Conda 和项目提供的 `environment.yml` 文件来创建和管理开发环境。
+It is recommended to use Conda and the `environment.yml` file provided by the project to create and manage the development environment.
+
 ```bash
-# 克隆仓库
-git clone https://github.com/your-username/DLC-WebUI.git
+# 克隆仓库 (如果尚未克隆) / Clone repository (if not already cloned)
+git clone https://github.com/guanliangyu/DLC-WebUI.git
 cd DLC-WebUI
 
-# 创建虚拟环境
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-venv\Scripts\activate     # Windows
-
-# 安装依赖
-pip install -r requirements.txt
-pip install -r requirements-dev.txt
+# 使用 environment.yml 创建并激活 Conda 环境
+# Create and activate Conda environment using environment.yml
+conda env create -f environment.yml
+conda activate dlc-webui-env
 ```
 
 ## 测试 / Testing
@@ -76,7 +75,7 @@ mypy src
 如果您在贡献过程中遇到任何问题，可以：
 
 - 在 Issues 中提问
-- 发送邮件至 [your-email@example.com](mailto:your-email@example.com)
+- 发送邮件至 liangyu.guan@outlook.com
 - 查看项目 Wiki
 
 ## 行为准则 / Code of Conduct
@@ -160,8 +159,8 @@ mypy src
 
 ## 联系方式 / Contact
 
-- GitHub Issues: [问题反馈](https://github.com/your-username/DLC-WebUI/issues)
-- Email: your-email@example.com
+- GitHub Issues: [问题反馈](https://github.com/guanliangyu/DLC-WebUI/issues)
+- Email: liangyu.guan@outlook.com
 
 再次感谢您的贡献！/ Thank you for your contribution!
 

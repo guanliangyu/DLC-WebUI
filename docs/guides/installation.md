@@ -13,48 +13,54 @@
   - Windows 10/11
   - Ubuntu 20.04/22.04
   - macOS 12或以上 / macOS 12 or later
-- Python 3.8或以上 / Python 3.8 or later
-- CUDA 11.0或以上 / CUDA 11.0 or later
-- cuDNN 8.0或以上 / cuDNN 8.0 or later
+- Python 3.8
+- CUDA 11.8 (通过 Conda 安装 / Installed via Conda)
+- cuDNN (通常随 Conda cudatoolkit 一并安装 / Usually installed with Conda cudatoolkit)
 
 ## 安装步骤 / Installation Steps
 
-### 1. 安装Python环境 / Install Python Environment
+### 1. 克隆项目 / Clone Project
 ```bash
-# 使用conda创建环境 / Create environment with conda
-conda create -n dlc-webui python=3.9
-conda activate dlc-webui
-```
-
-### 2. 安装CUDA和cuDNN / Install CUDA and cuDNN
-- 从NVIDIA官网下载并安装CUDA / Download and install CUDA from NVIDIA website
-- 安装对应版本的cuDNN / Install corresponding cuDNN version
-
-### 3. 克隆项目 / Clone Project
-```bash
-git clone https://github.com/yourusername/DLC-WebUI.git
+git clone https://github.com/guanliangyu/DLC-WebUI.git
 cd DLC-WebUI
 ```
 
-### 4. 安装依赖 / Install Dependencies
+### 2. 安装环境和依赖 / Install Environment and Dependencies
+
+**推荐方法: 使用 environment.yml (Recommended: Using environment.yml)**
+```bash
+# 使用 environment.yml 创建并激活 Conda 环境
+# Create and activate Conda environment using environment.yml
+conda env create -f environment.yml
+conda activate dlc-webui-env
+```
+
+**备选方法: 手动设置 (Alternative: Manual Setup)**
+
+**2.1. 安装Python环境 / Install Python Environment**
+```bash
+# 使用conda创建环境 / Create environment with conda
+conda create -n dlc-webui-env python=3.8 -y
+conda activate dlc-webui-env
+```
+
+**2.2. 安装CUDA和cuDNN / Install CUDA and cuDNN**
+```bash
+# 通过 Conda 安装 CUDA Toolkit (通常包含 cuDNN)
+# Install CUDA Toolkit via Conda (usually includes cuDNN)
+# (请根据您的系统和偏好选择合适的频道，conda-forge 通常是一个好的选择)
+# (Choose the appropriate channel for your system, conda-forge is often a good choice)
+conda install cudatoolkit=11.8 -c conda-forge -y
+```
+
+**2.3. 安装其余依赖 / Install Remaining Dependencies**
 ```bash
 # 使用pip安装依赖 / Install dependencies with pip
 pip install -r requirements.txt
-
-# 或使用conda安装 / Or install with conda
-conda env create -f environment.yml
 ```
 
-### 5. 配置设置 / Configure Settings
-1. 复制配置模板 / Copy configuration template
-```bash
-cp config/config.example.yaml config/config.yaml
-```
-
-2. 修改配置文件 / Modify configuration file
-- 设置数据目录 / Set data directory
-- 配置GPU设置 / Configure GPU settings
-- 设置用户认证 / Set up user authentication
+### 3. 配置设置 / Configure Settings
+# (此项目当前版本不需要额外的配置文件 / This project version does not currently require additional configuration files)
 
 ## 验证安装 / Verify Installation
 
@@ -65,7 +71,8 @@ pytest tests/
 
 ### 2. 启动应用 / Start Application
 ```bash
-python app.py
+# 在已激活的 dlc-webui-env 环境下运行 / Run in the activated dlc-webui-env environment
+streamlit run Home.py
 ```
 
 ### 3. 访问Web界面 / Access Web Interface
