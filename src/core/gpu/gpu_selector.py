@@ -1,6 +1,7 @@
 import GPUtil
 import streamlit as st
 
+
 def setup_gpu_selection():
     """
     Detects GPUs using GPUtil and sets up GPU selection in Streamlit.
@@ -13,9 +14,18 @@ def setup_gpu_selection():
     if num_gpus > 1:
         st.write(f"{num_gpus} GPUs detected in the system.")
         # Allow the user to specify how many GPUs they want to use
-        gpu_count = st.number_input('Enter the number of GPUs available', min_value=1, value=2, max_value=num_gpus)
+        gpu_count = st.number_input(
+            "Enter the number of GPUs available",
+            min_value=1,
+            value=2,
+            max_value=num_gpus,
+        )
         # Allow the user to select specific GPUs (index-based)
-        use_gpus = st.multiselect('Select GPUs to use', options=range(num_gpus), default=list(range(gpu_count)))
+        use_gpus = st.multiselect(
+            "Select GPUs to use",
+            options=range(num_gpus),
+            default=list(range(gpu_count)),
+        )
     elif num_gpus == 1:
         st.write("1 GPU detected in the system.")
         gpu_count = 1

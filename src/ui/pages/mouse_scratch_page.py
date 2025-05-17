@@ -1,32 +1,49 @@
-import streamlit as st
-import os
 import datetime
+import os
 
-from src.core.config import get_root_path, get_data_path, get_models_path
+import streamlit as st
 
-from src.core.utils.gpu_utils import display_gpu_usage
-from src.core.utils.gpu_selector import setup_gpu_selection
-from src.core.utils.file_utils import create_new_folder, upload_files, list_directories, display_folder_contents, create_folder_if_not_exists, select_video_files
-
-from src.core.helpers.analysis_helper import create_and_start_analysis, fetch_last_lines_of_logs
+from src.core.config import get_data_path, get_models_path, get_root_path
+from src.core.helpers.analysis_helper import (
+    create_and_start_analysis,
+    fetch_last_lines_of_logs,
+)
 from src.core.helpers.download_utils import create_download_button, filter_and_zip_files
+from src.core.processing.mouse_scratch_video_processing import (
+    process_mouse_scratch_video,
+    process_scratch_files,
+)
+from src.core.utils.file_utils import (
+    create_folder_if_not_exists,
+    create_new_folder,
+    display_folder_contents,
+    list_directories,
+    select_video_files,
+    upload_files,
+)
+from src.core.utils.gpu_selector import setup_gpu_selection
+from src.core.utils.gpu_utils import display_gpu_usage
 
-from src.core.processing.mouse_scratch_video_processing import process_mouse_scratch_video, process_scratch_files
 
 def mouse_scratch_page():
-    root_directory = os.path.join(get_data_path(), 'scratch')
+    root_directory = os.path.join(get_data_path(), "scratch")
     current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     folder_name = datetime.datetime.now().strftime("%Y-%m-%d")
     folder_path = os.path.join(root_directory, folder_name)
-    web_log_file_path = os.path.join(get_root_path(), 'logs', 'usage.txt')
+    web_log_file_path = os.path.join(get_root_path(), "logs", "usage.txt")
 
     models = {
-        "ICR-DJ-Scratch-V2": os.path.join(get_models_path(), "ABmodels/DJ-scratch-500px-narrow-2024-05-13/config.yaml"),
-        "C57-DJ-Scratch-V2": os.path.join(get_models_path(), "ABmodels/C57-Scratch-T2-2024-05-15/config.yaml")
+        "ICR-DJ-Scratch-V2": os.path.join(
+            get_models_path(), "ABmodels/DJ-scratch-500px-narrow-2024-05-13/config.yaml"
+        ),
+        "C57-DJ-Scratch-V2": os.path.join(
+            get_models_path(), "ABmodels/C57-Scratch-T2-2024-05-15/config.yaml"
+        ),
     }
 
     # 添加自定义CSS样式
-    st.markdown("""
+    st.markdown(
+        """
     <style>
         /* 卡片容器 */
         .stCard {
@@ -106,13 +123,16 @@ def mouse_scratch_page():
             margin-top: 1rem;
         }
     </style>
-    """, unsafe_allow_html=True)
+    """,
+        unsafe_allow_html=True,
+    )
 
     # 页面标题和说明
     st.title("🐁 小鼠抓挠行为分析 / Mouse Scratch Behavior Analysis")
-    
+
     with st.expander("💡 使用说明 / Instructions", expanded=True):
-        st.markdown("""
+        st.markdown(
+            """
         #### 视频要求 / Video Requirements:
         - 格式：MP4 / Format: MP4
         - 分辨率：500x500像素 / Resolution: 500x500 pixels
@@ -131,14 +151,17 @@ def mouse_scratch_page():
           If GPU memory usage is high, other users are currently using it
         - 请等待GPU资源释放后再开始新的工作  
           Please wait until GPU resources are available before starting new work
-        """)
+        """
+        )
 
-    tab1, tab2, tab3 = st.tabs([
-        "📊 视频分析 / Video Analysis",
-        "🔄 数据处理 / Result Process",
-        "📥 结果下载 / Download"
-    ])
-    
+    tab1, tab2, tab3 = st.tabs(
+        [
+            "📊 视频分析 / Video Analysis",
+            "🔄 数据处理 / Result Process",
+            "📥 结果下载 / Download",
+        ]
+    )
+
     with tab1:
         # GPU状态显示
         st.subheader("🖥️ GPU 状态 / GPU Status")
@@ -155,45 +178,64 @@ def mouse_scratch_page():
         st.subheader("📁 工作目录 / Working Directory")
         create_folder_if_not_exists(folder_path)
         directories = list_directories(root_directory)
-        
+
         if directories:
-            selected_directory = st.selectbox("📂 选择工作目录 / Choose a directory", directories)
+            selected_directory = st.selectbox(
+                "📂 选择工作目录 / Choose a directory", directories
+            )
             folder_path = os.path.join(root_directory, selected_directory)
             st.success(f"当前工作目录 / Current working folder: {folder_path}")
-            
+
             # 文件上传区域
             with st.container():
                 st.subheader("📤 文件上传 / File Upload")
                 upload_files(folder_path)
                 selected_files = select_video_files(folder_path)
-                
+
                 if selected_files:
                     st.markdown("### 📋 已选择的视频文件 / Selected video files")
                     for file in selected_files:
                         st.markdown(f"- {file}")
                 else:
                     st.info("📭 未选择视频文件 / No video files selected")
-            
+
             # 模型选择
             st.subheader("🤖 模型选择 / Model Selection")
             selected_model_name = st.selectbox(
                 "选择分析模型 / Choose analysis model",
                 list(models.keys()),
-                help="选择适合您的实验对象的模型 / Select the model suitable for your experimental subject"
+                help="选择适合您的实验对象的模型 / Select the model suitable for your experimental subject",
             )
             config_path = models[selected_model_name]
             st.success(f"已选择模型 / Selected model: {selected_model_name}")
 
             # 分析控制
             if high_memory_usage:
-                st.warning("⚠️ GPU显存占用率高，请稍后再试 / High GPU memory usage detected. Please wait before starting analysis.")
+                st.warning(
+                    "⚠️ GPU显存占用率高，请稍后再试 / High GPU memory usage detected. Please wait before starting analysis."
+                )
             else:
-                if st.button("🚀 开始GPU分析 / Start GPU Analysis", use_container_width=True):
+                if st.button(
+                    "🚀 开始GPU分析 / Start GPU Analysis", use_container_width=True
+                ):
                     try:
-                        with open(web_log_file_path, "a", encoding='utf-8') as web_log_file:
-                            web_log_file.write(f"\n{st.session_state['name']}, {current_time}\n")
-                        create_and_start_analysis(folder_path, selected_files, config_path, gpu_count, current_time, selected_gpus)
-                        st.success("✅ 分析已开始！请查看日志了解进度 / Analysis started! Check logs for progress.")
+                        with open(
+                            web_log_file_path, "a", encoding="utf-8"
+                        ) as web_log_file:
+                            web_log_file.write(
+                                f"\n{st.session_state['name']}, {current_time}\n"
+                            )
+                        create_and_start_analysis(
+                            folder_path,
+                            selected_files,
+                            config_path,
+                            gpu_count,
+                            current_time,
+                            selected_gpus,
+                        )
+                        st.success(
+                            "✅ 分析已开始！请查看日志了解进度 / Analysis started! Check logs for progress."
+                        )
                     except Exception as e:
                         st.error(f"❌ 分析启动失败 / Failed to start analysis: {e}")
 
@@ -209,41 +251,55 @@ def mouse_scratch_page():
 
     with tab2:
         st.subheader("🔄 结果处理 / Result Processing")
-        if 'selected_directory' in locals():
+        if "selected_directory" in locals():
             st.info(f"当前工作目录 / Current working folder: {selected_directory}")
             st.info(f"当前使用的模型 / Current model: {selected_model_name}")
-            
-            if st.button("⚡ 处理分析结果 / Process Analysis Results", use_container_width=True):
+
+            if st.button(
+                "⚡ 处理分析结果 / Process Analysis Results", use_container_width=True
+            ):
                 with st.spinner("处理中 / Processing..."):
                     process_scratch_files(folder_path, 0.999, 15, 35)
                 st.success("✅ 结果处理完成 / Analysis results processed")
         else:
-            st.warning("⚠️ 请先在分析页面选择工作目录 / Please select a working directory in the analysis tab first")
+            st.warning(
+                "⚠️ 请先在分析页面选择工作目录 / Please select a working directory in the analysis tab first"
+            )
 
     with tab3:
         st.subheader("📥 结果下载 / Result Download")
-        if 'selected_directory' in locals():
+        if "selected_directory" in locals():
             st.info(f"当前工作目录 / Current working folder: {selected_directory}")
             st.info(f"当前使用的模型 / Current model: {selected_model_name}")
-            
+
             try:
                 col1, col2, col3 = st.columns(3)
                 with col1:
-                    if st.button("📦 下载所有文件 / Download All Files", use_container_width=True):
+                    if st.button(
+                        "📦 下载所有文件 / Download All Files", use_container_width=True
+                    ):
                         filter_and_zip_files(folder_path)
-                
+
                 with col2:
-                    if st.button("📄 下载除MP4外的所有文件 / Download All Except MP4", use_container_width=True):
-                        filter_and_zip_files(folder_path, excluded_ext=['.mp4'])
-                
+                    if st.button(
+                        "📄 下载除MP4外的所有文件 / Download All Except MP4",
+                        use_container_width=True,
+                    ):
+                        filter_and_zip_files(folder_path, excluded_ext=[".mp4"])
+
                 with col3:
-                    if st.button("📊 仅下载CSV文件 / Download Only CSV", use_container_width=True):
-                        filter_and_zip_files(folder_path, included_ext=['.csv'])
-                
+                    if st.button(
+                        "📊 仅下载CSV文件 / Download Only CSV", use_container_width=True
+                    ):
+                        filter_and_zip_files(folder_path, included_ext=[".csv"])
+
             except Exception as e:
                 st.error(f"❌ 文件下载出错 / Error during file download: {e}")
         else:
-            st.warning("⚠️ 请先在分析页面选择工作目录 / Please select a working directory in the analysis tab first")
+            st.warning(
+                "⚠️ 请先在分析页面选择工作目录 / Please select a working directory in the analysis tab first"
+            )
+
 
 if __name__ == "__main__":
     mouse_scratch_page()

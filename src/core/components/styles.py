@@ -1,8 +1,10 @@
 import streamlit as st
 
+
 def load_css_styles():
     """加载共享的CSS样式"""
-    st.markdown("""
+    st.markdown(
+        """
     <style>
         /* 隐藏默认的页面导航 */
         [data-testid="stSidebarNav"] {
@@ -47,4 +49,6 @@ def load_css_styles():
             padding-left: 1rem;
         }
     </style>
-    """, unsafe_allow_html=True) 
+    """,
+        unsafe_allow_html=True,
+    )
