@@ -47,10 +47,11 @@ def create_video_combination_script(folder_path, selected_files, output_director
 
 if __name__ == "__main__":
     # Example usage: Run this module directly to test the combination script creation.
+    folder_path = "/home/Public/DLC-Web/Scratch/video_prepare/2024-05-28"
     selected_files = [
-        "/home/Public/DLC-Web/Scratch/video_prepare/2024-05-28/red-1.MP4",
-        "/home/Public/DLC-Web/Scratch/video_prepare/2024-05-28/red-2.MP4",
-        "/home/Public/DLC-Web/Scratch/video_prepare/2024-05-28/red-3.MP4",
+        f"{folder_path}/red-1.MP4",
+        f"{folder_path}/red-2.MP4",
+        f"{folder_path}/red-3.MP4",
     ]
-    output_directory = "/home/Public/DLC-Web/Scratch/video_prepare/2024-05-28"
-    create_video_combination_script(selected_files, output_directory)
+    output_directory = folder_path
+    create_video_combination_script(folder_path, selected_files, output_directory)

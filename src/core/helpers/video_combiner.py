@@ -1,4 +1,5 @@
 import os
+from typing import Optional
 
 import streamlit as st
 
@@ -8,7 +9,7 @@ def create_video_combination_script(
     selected_files: list,
     output_directory: str,
     output_filename: str = "combined_video.mp4",
-) -> str:
+) -> Optional[str]:
     """
     创建视频合并脚本
     Create video combination script

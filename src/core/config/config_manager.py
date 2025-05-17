@@ -1,10 +1,10 @@
 import os
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, cast
 
 import streamlit as st
 import streamlit_authenticator as stauth
-import yaml
-from yaml.loader import SafeLoader
+import yaml  # type: ignore
+from yaml.loader import SafeLoader  # type: ignore
 
 
 def get_root_path() -> str:
@@ -42,7 +42,7 @@ def load_config(file_path: str) -> Optional[Dict[str, Any]]:
 
         with open(file_path, "r", encoding="utf-8") as file:
             config = yaml.safe_load(file)
-            return config
+            return cast(Dict[str, Any], config)
     except FileNotFoundError:
         return None
     except yaml.YAMLError as e:

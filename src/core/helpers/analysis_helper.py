@@ -12,7 +12,7 @@ def create_and_start_analysis(
     config_path: str,
     gpu_count: int,
     current_time: str,
-    selected_gpus: list = None,
+    selected_gpus: Optional[List[int]] = None,
 ) -> None:
     """创建并启动分析任务
     Create and start analysis task

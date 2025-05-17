@@ -9,9 +9,7 @@ from src.core.helpers.analysis_helper import (
     fetch_last_lines_of_logs,
 )
 from src.core.helpers.download_utils import filter_and_zip_files
-from src.core.processing.three_chamber_video_processing import (
-    process_three_chamber_files,
-)
+from src.core.processing.three_chamber_video_processing import process_tc_files
 from src.ui.components.file_manager import setup_working_directory
 from src.ui.components.gpu_status import show_gpu_status
 
@@ -131,7 +129,7 @@ def show():
                 "⚡ 处理分析结果 / Process Analysis Results", use_container_width=True
             ):
                 with st.spinner("处理中 / Processing..."):
-                    process_three_chamber_files(folder_path, 0.999, 15, 35)
+                    process_tc_files(folder_path, 0.999)
                 st.success("✅ 结果处理完成 / Analysis results processed")
         else:
             st.warning(

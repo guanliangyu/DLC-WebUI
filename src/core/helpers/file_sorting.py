@@ -13,7 +13,7 @@ def sort_files_by_extension(folder_path: str) -> Dict[str, List[str]]:
     Returns:
         Dict[str, List[str]]: 按扩展名分组的文件字典
     """
-    files_dict = {}
+    files_dict: Dict[str, List[str]] = {}
     for file in os.listdir(folder_path):
         ext = os.path.splitext(file)[1]
         if ext not in files_dict:

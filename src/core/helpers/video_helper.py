@@ -426,3 +426,18 @@ def move_selected_files(dest_folder_path, selected_files, source_folder_path):
         st.success(f"✅ 已移动 {files_moved} 个文件到 {dest_folder_path}")
     else:
         st.info("没有选择要移动的文件 / No files selected to move")
+
+
+def process_video_files(
+    folder_path: str,
+    selected_files: list,
+    target_fps: int,
+    target_size: tuple,
+) -> None:
+    """Placeholder for video processing logic."""
+    pass
+
+
+def merge_videos(video_paths: list, output_path: str) -> None:
+    """Placeholder for video merging logic."""
+    pass
