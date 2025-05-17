@@ -42,6 +42,8 @@ jobs:
       run: |
         echo "Activating Conda environment for linting and testing..."
         conda activate dlc-webui-env # Ensure environment is activated
+        echo "Installing project in editable mode..."
+        pip install -e .
         
         # flake8 should be installed via environment.yml (e.g., as a dependency of black or pytest, or directly)
         # If not, it can be installed via: conda install flake8 -y
