@@ -1,19 +1,23 @@
 import GPUtil
 import streamlit as st
 
+
 def get_gpu_utilization():
     """Return GPU utilization information as a list of dictionaries."""
     gpus = GPUtil.getGPUs()
     usage_info = []
     for gpu in gpus:
-        usage_info.append({
-            "id": gpu.id,
-            "memory_util": gpu.memoryUtil,
-            "gpu_util": gpu.load,
-            "total_memory": gpu.memoryTotal,
-            "used_memory": gpu.memoryUsed,
-        })
+        usage_info.append(
+            {
+                "id": gpu.id,
+                "memory_util": gpu.memoryUtil,
+                "gpu_util": gpu.load,
+                "total_memory": gpu.memoryTotal,
+                "used_memory": gpu.memoryUsed,
+            }
+        )
     return usage_info
+
 
 def display_gpu_usage():
     gpu_info = get_gpu_utilization()

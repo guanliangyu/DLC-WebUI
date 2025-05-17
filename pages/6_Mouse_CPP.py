@@ -1,13 +1,18 @@
-import streamlit as st
-import os
 import datetime
-from src.core.config import get_root_path, get_data_path, get_models_path
-from src.core.helpers.analysis_helper import create_and_start_analysis, fetch_last_lines_of_logs
+import os
+
+import streamlit as st
+
+from src.core.components import load_css_styles, render_sidebar
+from src.core.config import get_data_path, get_models_path, get_root_path
+from src.core.helpers.analysis_helper import (
+    create_and_start_analysis,
+    fetch_last_lines_of_logs,
+)
 from src.core.helpers.download_utils import filter_and_zip_files
 from src.core.processing.mouse_cpp_video_processing import process_cpp_files
-from src.core.utils.gpu_utils import display_gpu_usage
 from src.core.utils.gpu_selector import setup_gpu_selection
-from src.core.components import render_sidebar, load_css_styles
+from src.core.utils.gpu_utils import display_gpu_usage
 
 # 导入共享组件
 from src.ui.components.file_manager import setup_working_directory
@@ -17,7 +22,7 @@ st.set_page_config(
     page_title="Mouse CPP",
     page_icon="🏠",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded",
 )
 
 # 加载样式和侧边栏
@@ -28,26 +33,30 @@ render_sidebar()
 st.title("🏠 小鼠位置偏好分析 / Mouse CPP Analysis")
 
 with st.expander("💡 使用说明 / Instructions", expanded=True):
-    st.markdown("""
+    st.markdown(
+        """
     #### 视频要求 / Video Requirements:
     - 格式：MP4 / Format: MP4
     - 分辨率：650x300像素 / Resolution: 650x300 pixels
     - 帧率：30帧/秒 / Frame Rate: 30 fps
     - 视频方向：俯视，箱子处于居中位置，小鼠无遮挡 / Video Direction: Top-down view, box centered, mouse unobstructed
     - 区域划分：左区域(0-270)，中区域(270-370)，右区域(370-650) / Area Division: Left(0-270), Middle(270-370), Right(370-650)
-    """)
+    """
+    )
 
 # 设置路径和时间
-root_directory = os.path.join(get_data_path(), 'cpp')
+root_directory = os.path.join(get_data_path(), "cpp")
 current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-web_log_file_path = os.path.join(get_root_path(), 'logs', 'usage.txt')
+web_log_file_path = os.path.join(get_root_path(), "logs", "usage.txt")
 
 # 设置工作目录
 folder_path, selected_files = setup_working_directory(root_directory)
 
 # 设置模型
 models = {
-    "C57-CPP-V1": os.path.join(get_models_path(), "CPP-mouse-C57-2024-08-19/config.yaml")
+    "C57-CPP-V1": os.path.join(
+        get_models_path(), "CPP-mouse-C57-2024-08-19/config.yaml"
+    )
 }
 
 # 检查可用的模型
@@ -57,11 +66,13 @@ for name, path in models.items():
         available_models[name] = path
 
 # 创建标签页
-tab1, tab2, tab3 = st.tabs([
-    "📊 视频分析 / Video Analysis",
-    "🔄 数据处理 / Result Process",
-    "📥 结果下载 / Download"
-])
+tab1, tab2, tab3 = st.tabs(
+    [
+        "📊 视频分析 / Video Analysis",
+        "🔄 数据处理 / Result Process",
+        "📥 结果下载 / Download",
+    ]
+)
 
 with tab1:
     # 显示GPU状态和配置
@@ -75,40 +86,59 @@ with tab1:
         if selected_gpus:
             st.success(f"可用GPU数量 / Available GPUs: {gpu_count}")
             st.info(f"已选择的GPU / Selected GPUs: {selected_gpus}")
-    
+
     if folder_path:
         # 模型选择
         st.subheader("🤖 模型选择 / Model Selection")
-        
+
         if available_models:
             selected_model_name = st.selectbox(
                 "选择分析模型 / Choose analysis model",
                 list(available_models.keys()),
-                help="选择适合您的实验对象的模型 / Select the model suitable for your experimental subject"
+                help="选择适合您的实验对象的模型 / Select the model suitable for your experimental subject",
             )
             config_path = available_models[selected_model_name]
             st.success(f"已选择模型 / Selected model: {selected_model_name}")
         else:
-            st.error("❌ 未找到可用的模型文件，请检查模型安装 / No available models found, please check model installation")
+            st.error(
+                "❌ 未找到可用的模型文件，请检查模型安装 / No available models found, please check model installation"
+            )
             st.stop()  # 停止页面执行
-        
+
         # 分析控制
         if high_memory_usage:
-            st.warning("⚠️ GPU显存占用率高，请稍后再试 / High GPU memory usage detected. Please wait before starting analysis.")
+            st.warning(
+                "⚠️ GPU显存占用率高，请稍后再试 / High GPU memory usage detected. Please wait before starting analysis."
+            )
         elif not selected_files:
-            st.warning("⚠️ 请先选择要分析的视频文件 / Please select video files to analyze first")
+            st.warning(
+                "⚠️ 请先选择要分析的视频文件 / Please select video files to analyze first"
+            )
         else:
-            if st.button("🚀 开始GPU分析 / Start GPU Analysis", use_container_width=True):
+            if st.button(
+                "🚀 开始GPU分析 / Start GPU Analysis", use_container_width=True
+            ):
                 try:
-                    with open(web_log_file_path, "a", encoding='utf-8') as web_log_file:
-                        web_log_file.write(f"\n{st.session_state['name']}, {current_time}\n")
-                    
+                    with open(web_log_file_path, "a", encoding="utf-8") as web_log_file:
+                        web_log_file.write(
+                            f"\n{st.session_state['name']}, {current_time}\n"
+                        )
+
                     with st.spinner("分析中... / Analyzing..."):
-                        create_and_start_analysis(folder_path, selected_files, config_path, gpu_count, current_time, selected_gpus)
-                        st.success("✅ 分析已开始！请查看日志了解进度 / Analysis started! Check logs for progress.")
+                        create_and_start_analysis(
+                            folder_path,
+                            selected_files,
+                            config_path,
+                            gpu_count,
+                            current_time,
+                            selected_gpus,
+                        )
+                        st.success(
+                            "✅ 分析已开始！请查看日志了解进度 / Analysis started! Check logs for progress."
+                        )
                 except Exception as e:
                     st.error(f"❌ 分析启动失败 / Failed to start analysis: {e}")
-        
+
         # 日志显示
         st.subheader("📋 分析日志 / Analysis Logs")
         if st.button("🔄 刷新日志 / Refresh Logs"):
@@ -116,9 +146,11 @@ with tab1:
             for gpu, log_entry in last_log_entries.items():
                 with st.expander(f"GPU {gpu} 日志 / Log", expanded=True):
                     st.code(log_entry)
-                    
+
         # 自动刷新提示
-        st.info('💡 提示：请定期点击"刷新日志"按钮查看分析进度 / Tip: Click "Refresh Logs" periodically to check analysis progress')
+        st.info(
+            '💡 提示：请定期点击"刷新日志"按钮查看分析进度 / Tip: Click "Refresh Logs" periodically to check analysis progress'
+        )
     else:
         st.warning("⚠️ 请先选择工作目录 / Please select a working directory first")
 
@@ -128,20 +160,26 @@ with tab2:
         # 显示当前工作目录和模型信息
         col1, col2 = st.columns(2)
         with col1:
-            st.info(f"📂 当前工作目录 / Current working folder: {os.path.basename(folder_path)}")
+            st.info(
+                f"📂 当前工作目录 / Current working folder: {os.path.basename(folder_path)}"
+            )
         with col2:
-            if 'selected_model_name' in locals():
+            if "selected_model_name" in locals():
                 st.info(f"🤖 当前使用的模型 / Current model: {selected_model_name}")
             else:
                 st.warning("⚠️ 未选择模型 / No model selected")
-        
+
         # 处理按钮
-        if st.button("⚡ 处理分析结果 / Process Analysis Results", use_container_width=True):
+        if st.button(
+            "⚡ 处理分析结果 / Process Analysis Results", use_container_width=True
+        ):
             with st.spinner("处理中 / Processing..."):
                 process_cpp_files(folder_path)
             st.success("✅ 结果处理完成 / Analysis results processed")
     else:
-        st.warning("⚠️ 请先在分析页面选择工作目录 / Please select a working directory in the analysis tab first")
+        st.warning(
+            "⚠️ 请先在分析页面选择工作目录 / Please select a working directory in the analysis tab first"
+        )
 
 with tab3:
     st.subheader("📥 结果下载 / Result Download")
@@ -149,30 +187,41 @@ with tab3:
         # 显示当前工作目录和模型信息
         col1, col2 = st.columns(2)
         with col1:
-            st.info(f"📂 当前工作目录 / Current working folder: {os.path.basename(folder_path)}")
+            st.info(
+                f"📂 当前工作目录 / Current working folder: {os.path.basename(folder_path)}"
+            )
         with col2:
-            if 'selected_model_name' in locals():
+            if "selected_model_name" in locals():
                 st.info(f"🤖 当前使用的模型 / Current model: {selected_model_name}")
             else:
                 st.warning("⚠️ 未选择模型 / No model selected")
-        
+
         # 下载选项
         st.markdown("### 📦 下载选项 / Download Options")
         try:
             col1, col2, col3 = st.columns(3)
             with col1:
-                if st.button("📦 下载所有文件 / Download All Files", use_container_width=True):
+                if st.button(
+                    "📦 下载所有文件 / Download All Files", use_container_width=True
+                ):
                     filter_and_zip_files(folder_path)
-            
+
             with col2:
-                if st.button("📄 下载除MP4外的所有文件 / Download All Except MP4", use_container_width=True):
-                    filter_and_zip_files(folder_path, excluded_ext=['.mp4'])
-            
+                if st.button(
+                    "📄 下载除MP4外的所有文件 / Download All Except MP4",
+                    use_container_width=True,
+                ):
+                    filter_and_zip_files(folder_path, excluded_ext=[".mp4"])
+
             with col3:
-                if st.button("📊 仅下载CSV文件 / Download Only CSV", use_container_width=True):
-                    filter_and_zip_files(folder_path, included_ext=['.csv'])
-            
+                if st.button(
+                    "📊 仅下载CSV文件 / Download Only CSV", use_container_width=True
+                ):
+                    filter_and_zip_files(folder_path, included_ext=[".csv"])
+
         except Exception as e:
             st.error(f"❌ 文件下载出错 / Error during file download: {e}")
     else:
-        st.warning("⚠️ 请先在分析页面选择工作目录 / Please select a working directory in the analysis tab first") 
+        st.warning(
+            "⚠️ 请先在分析页面选择工作目录 / Please select a working directory in the analysis tab first"
+        )

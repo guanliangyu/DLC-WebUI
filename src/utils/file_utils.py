@@ -1,5 +1,7 @@
 import os
+
 import streamlit as st
+
 
 def create_new_folder(folder_path):
     try:
@@ -11,11 +13,14 @@ def create_new_folder(folder_path):
     except Exception as e:
         st.error(f"Error creating folder: {e}")
 
+
 def upload_files(folder_path):
     """
     Handles the upload of files to the specified directory and saves them without any additional processing.
     """
-    uploaded_files = st.file_uploader("Choose a file", type="mp4", accept_multiple_files=True)
+    uploaded_files = st.file_uploader(
+        "Choose a file", type="mp4", accept_multiple_files=True
+    )
     if uploaded_files:
         for uploaded_file in uploaded_files:
             file_path = os.path.join(folder_path, uploaded_file.name)
@@ -26,13 +31,19 @@ def upload_files(folder_path):
             else:
                 st.info(f'File "{uploaded_file.name}" already exists.')
 
+
 def list_directories(root_directory):
     try:
-        directories = [d for d in os.listdir(root_directory) if os.path.isdir(os.path.join(root_directory, d))]
+        directories = [
+            d
+            for d in os.listdir(root_directory)
+            if os.path.isdir(os.path.join(root_directory, d))
+        ]
         directories.sort()
     except Exception as e:
         st.error(f"Failed to list directories: {e}")
     return directories
+
 
 def display_folder_contents(folder_path, selected_files):
     """
@@ -62,7 +73,8 @@ def display_folder_contents(folder_path, selected_files):
                 st.write(f"Selected: {file}")
             else:
                 st.write(file)
-                
+
+
 def create_folder_if_not_exists(folder_path):
     """
     Checks if the specified folder exists and creates it if it does not.
@@ -77,15 +89,19 @@ def create_folder_if_not_exists(folder_path):
                 st.info(f"Folder already exists: {folder_path}")
         except Exception as e:
             st.error(f"Error creating folder: {e}")
-            
+
+
 def select_video_files(folder_path):
     """
     Displays a multi-select widget with video files sorted by name for user to select for processing.
     """
-    files = [f for f in os.listdir(folder_path) if os.path.splitext(f)[1].lower() == '.mp4']
+    files = [
+        f for f in os.listdir(folder_path) if os.path.splitext(f)[1].lower() == ".mp4"
+    ]
     files.sort()
     selected_files = st.multiselect("Select video files for analysis", files)
     return [os.path.join(folder_path, f) for f in selected_files]
+
 
 def select_python_files(folder_path):
     """
@@ -102,7 +118,7 @@ def select_python_files(folder_path):
         return []
 
     try:
-        files = [f for f in os.listdir(folder_path) if os.path.splitext(f)[1] == '.py']
+        files = [f for f in os.listdir(folder_path) if os.path.splitext(f)[1] == ".py"]
         files.sort()
         selected_files = st.multiselect("Select Python files for run", files)
         return [os.path.join(folder_path, f) for f in selected_files]
